@@ -23,6 +23,8 @@ namespace HueFestivalAPI.Models
         [MaxLength(20)]
         public string Role { get; set; }
         public Boolean Status { get; set; }
+        public int IdQuyen { get; set; }
+        public Quyen Quyen { get; set; }
         public ICollection<TinTuc> TinTucs { get; set; }
         public ICollection<DiaDiem> DiaDiems { get; set; }
     }

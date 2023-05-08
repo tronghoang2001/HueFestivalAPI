@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Reflection;
+using System.Xml;
 
 namespace HueFestivalAPI.Models
 {
@@ -20,10 +22,22 @@ namespace HueFestivalAPI.Models
         public DbSet<MenuHoTro> MenuHoTros { get; set; }
         public DbSet<NhomChuongTrinh> NhomChuongTrinhs { get; set; }
         public DbSet<TinTuc> TinTucs { get; set; }
+        public DbSet<Checkin> Checkins { get; set; }
+        public DbSet<ChiTietDiemBanVe> ChiTietDiemBanVes { get; set; }
+        public DbSet<ChucNang> ChucNangs { get; set; }
+        public DbSet<DiemBanVe> DiemBanVes { get; set; }
+        public DbSet<HoaDon> HoaDons { get; set; }
+        public DbSet<KhachHang> KhachHangs { get; set; }
+        public DbSet<LoaiVe> LoaiVes { get; set; }
+        public DbSet<PhanQuyenChucNang> PhanQuyenChucNangs { get; set; }
+        public DbSet<Quyen> Quyens { get; set; }
+        public DbSet<Ve> Ves { get; set; }
         #endregion
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<PhanQuyenChucNang>()
+                .HasKey(k => new { k.IdQuyen, k.IdChucNang });
             modelBuilder.Entity<TinTuc>()
                 .HasIndex(c => c.Title)
                 .IsUnique();
@@ -46,6 +60,18 @@ namespace HueFestivalAPI.Models
                 .HasIndex(c => c.Title)
                 .IsUnique();
             modelBuilder.Entity<ChuongTrinh>()
+                .HasIndex(c => c.Name)
+                .IsUnique();
+            modelBuilder.Entity<Quyen>()
+                .HasIndex(c => c.Name)
+                .IsUnique();
+            modelBuilder.Entity<ChucNang>()
+                .HasIndex(c => c.Name)
+                .IsUnique();
+            modelBuilder.Entity<LoaiVe>()
+                .HasIndex(c => c.Name)
+                .IsUnique();
+            modelBuilder.Entity<DiemBanVe>()
                 .HasIndex(c => c.Name)
                 .IsUnique();
             modelBuilder.Entity<ChuongTrinhDetails>()
@@ -84,6 +110,46 @@ namespace HueFestivalAPI.Models
                 .HasOne(c => c.Account)
                 .WithMany(ct => ct.TinTucs)
                 .HasForeignKey(c => c.IdAccount);
+            modelBuilder.Entity<Checkin>()
+                .HasOne(c => c.HoaDon)
+                .WithMany(ct => ct.Checkins)
+                .HasForeignKey(c => c.IdHoaDon);
+            modelBuilder.Entity<ChiTietDiemBanVe>()
+                .HasOne(c => c.DiemBanVe)
+                .WithMany(ct => ct.ChiTietDiemBanVes)
+                .HasForeignKey(c => c.IdDiemBanVe);
+            modelBuilder.Entity<ChiTietDiemBanVe>()
+                .HasOne(c => c.Ve)
+                .WithMany(ct => ct.ChiTietDiemBanVes)
+                .HasForeignKey(c => c.IdVe);
+            modelBuilder.Entity<HoaDon>()
+                .HasOne(c => c.KhachHang)
+                .WithMany(ct => ct.HoaDons)
+                .HasForeignKey(c => c.IdKhachHang);
+            modelBuilder.Entity<HoaDon>()
+                .HasOne(c => c.ChiTietDiemBanVe)
+                .WithMany(ct => ct.HoaDons)
+                .HasForeignKey(c => c.IdChiTietDiemBanVe);
+            modelBuilder.Entity<PhanQuyenChucNang>()
+                .HasOne(c => c.Quyen)
+                .WithMany(ct => ct.PhanQuyenChucNangs)
+                .HasForeignKey(c => c.IdQuyen);
+            modelBuilder.Entity<PhanQuyenChucNang>()
+                .HasOne(c => c.ChucNang)
+                .WithMany(ct => ct.PhanQuyenChucNangs)
+                .HasForeignKey(c => c.IdChucNang);
+            modelBuilder.Entity<Ve>()
+                .HasOne(c => c.ChuongTrinhDetails)
+                .WithMany(ct => ct.Ves)
+                .HasForeignKey(c => c.IdDetails);
+            modelBuilder.Entity<Ve>()
+                .HasOne(c => c.LoaiVe)
+                .WithMany(ct => ct.Ves)
+                .HasForeignKey(c => c.IdLoaiVe);
+            modelBuilder.Entity<Account>()
+               .HasOne(c => c.Quyen)
+               .WithMany(ct => ct.Accounts)
+               .HasForeignKey(c => c.IdQuyen);
         }
     }
 }

@@ -4,6 +4,7 @@ using HueFestivalAPI.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HueFestivalAPI.Migrations
 {
     [DbContext(typeof(HueFestivalContext))]
-    partial class HueFestivalContextModelSnapshot : ModelSnapshot
+    [Migration("20230505125809_updateDb1")]
+    partial class updateDb1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -53,6 +55,9 @@ namespace HueFestivalAPI.Migrations
                         .HasMaxLength(15)
                         .HasColumnType("nvarchar(15)");
 
+                    b.Property<int>("QuyenIdQuyen")
+                        .HasColumnType("int");
+
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -63,7 +68,7 @@ namespace HueFestivalAPI.Migrations
 
                     b.HasKey("IdAccount");
 
-                    b.HasIndex("IdQuyen");
+                    b.HasIndex("QuyenIdQuyen");
 
                     b.HasIndex("Email", "PhoneNumber")
                         .IsUnique();
@@ -154,10 +159,6 @@ namespace HueFestivalAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Md5")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -188,14 +189,6 @@ namespace HueFestivalAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdDetails"), 1L, 1);
 
-                    b.Property<string>("DiaDiemName")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("DoanName")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
@@ -205,15 +198,11 @@ namespace HueFestivalAPI.Migrations
                     b.Property<int>("IdDiaDiem")
                         .HasColumnType("int");
 
-                    b.Property<int?>("IdDoan")
+                    b.Property<int>("IdDoan")
                         .HasColumnType("int");
 
                     b.Property<int>("IdNhom")
                         .HasColumnType("int");
-
-                    b.Property<string>("NhomName")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
@@ -731,7 +720,7 @@ namespace HueFestivalAPI.Migrations
                 {
                     b.HasOne("HueFestivalAPI.Models.Quyen", "Quyen")
                         .WithMany("Accounts")
-                        .HasForeignKey("IdQuyen")
+                        .HasForeignKey("QuyenIdQuyen")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -784,7 +773,9 @@ namespace HueFestivalAPI.Migrations
 
                     b.HasOne("HueFestivalAPI.Models.DoanChuongTrinh", "DoanChuongTrinh")
                         .WithMany("ChuongTrinhDetails")
-                        .HasForeignKey("IdDoan");
+                        .HasForeignKey("IdDoan")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("HueFestivalAPI.Models.NhomChuongTrinh", "NhomChuongTrinh")
                         .WithMany("ChuongTrinhDetails")

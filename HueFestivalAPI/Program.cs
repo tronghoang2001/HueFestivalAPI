@@ -1,4 +1,5 @@
 using HueFestivalAPI.Models;
+using HueFestivalAPI.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +19,12 @@ builder.Services.AddDbContext<HueFestivalContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("HueFestivalDB"));
 });
 
+builder.Services.AddAutoMapper(typeof(Program));
+
+builder.Services.AddScoped<IChuongTrinhService, ChuongTrinhService>();
+builder.Services.AddScoped<IDiaDiemService, DiaDiemService>();
+builder.Services.AddScoped<ITinTucService, TinTucService>();
+builder.Services.AddScoped<IMenuHoTroService, MenuHoTroService>();
 
 var app = builder.Build();
 
