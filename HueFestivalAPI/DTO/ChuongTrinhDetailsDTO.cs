@@ -4,7 +4,7 @@ namespace HueFestivalAPI.DTO
 {
     public class ChuongTrinhDetailsDTO
     {
-        public TimeSpan time { get; set; }
+        public string time { get; set; }
         public string fdate { get; set; }
         public string tdate { get; set; }
         public int? id_doan { get; set; }

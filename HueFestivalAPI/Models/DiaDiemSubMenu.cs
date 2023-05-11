@@ -15,7 +15,6 @@ namespace HueFestivalAPI.Models
         [Required]
         [MaxLength(200)]
         public string PathIcon { get; set; }
-        public int PTypeId { get; set; }
         public int TypeData { get; set; }
         public int IdMenu { get; set; }
         public DiaDiemMenu DiaDiemMenu { get; set; }

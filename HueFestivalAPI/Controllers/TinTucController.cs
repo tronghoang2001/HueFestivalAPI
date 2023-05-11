@@ -1,5 +1,8 @@
-﻿using HueFestivalAPI.Services;
+﻿using HueFestivalAPI.DTO;
+using HueFestivalAPI.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Data;
 
 namespace HueFestivalAPI.Controllers
 {
@@ -32,6 +35,44 @@ namespace HueFestivalAPI.Controllers
         {
             var tintuc = await _tinTucService.GetTinTucByIdAsync(id);
             return tintuc == null ? NotFound() : Ok(tintuc);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        public async Task<IActionResult> AddTinTuc(AddTinTucDTO tinTucDto)
+        {
+            try
+            {
+                var tintuc = await _tinTucService.AddTinTucAsync(tinTucDto);
+                return Ok(tintuc);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateTinTuc(AddTinTucDTO tinTucDto, int id)
+        {
+            try
+            {
+                var tintuc = await _tinTucService.UpdateTinTucAsync(tinTucDto, id);
+                return Ok(tintuc);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteTinTuc(int id)
+        {
+            await _tinTucService.DeleteTinTucAsync(id);
+            return Ok();
         }
     }
 }

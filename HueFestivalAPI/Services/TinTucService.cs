@@ -71,5 +71,69 @@ namespace HueFestivalAPI.Services
 
             return tintucDto;
         }
+
+        public async Task<TinTuc> AddTinTucAsync(AddTinTucDTO tinTucDto)
+        {
+            var tintuc = new TinTuc
+            {
+                TypeId = tinTucDto.TypeId,
+                OtherTypeId = 0,
+                Title = tinTucDto.Title,
+                Summary = tinTucDto.Summary,
+                Content = tinTucDto.Content,
+                PathImage = tinTucDto.PathImage,
+                PostDate = DateTime.Now,
+                ChangeDate = DateTime.Now,
+                Approved = tinTucDto.Approved,
+                View = 0,
+                Arrange = tinTucDto.Arrange,
+                Latitude = tinTucDto.Latitude,
+                Longtitude = tinTucDto.Longtitude,
+                IdAccount = 4
+            };
+
+            await _context.TinTucs.AddAsync(tintuc);
+            await _context.SaveChangesAsync();
+
+            return tintuc;
+        }
+
+        public async Task<TinTuc> UpdateTinTucAsync(AddTinTucDTO tinTucDto, int id)
+        {
+            var tintuc = new TinTuc
+            {
+                IdTinTuc = id,
+                TypeId = tinTucDto.TypeId,
+                OtherTypeId = 0,
+                Title = tinTucDto.Title,
+                Summary = tinTucDto.Summary,
+                Content = tinTucDto.Content,
+                PathImage = tinTucDto.PathImage,
+                PostDate = DateTime.Now,
+                ChangeDate = DateTime.Now,
+                Approved = tinTucDto.Approved,
+                Arrange = tinTucDto.Arrange,
+                Latitude = tinTucDto.Latitude,
+                Longtitude = tinTucDto.Longtitude,
+                IdAccount = 4
+            };
+
+            _context.TinTucs.Update(tintuc);
+            await _context.SaveChangesAsync();
+            return tintuc;
+        }
+
+        public async Task DeleteTinTucAsync(int id)
+        {
+            var tintuc = await _context.TinTucs
+                .FirstOrDefaultAsync(c => c.IdTinTuc == id);
+
+            if (tintuc != null)
+            {
+                _context.TinTucs.Remove(tintuc);
+                await _context.SaveChangesAsync();
+            }
+        }
+
     }
 }

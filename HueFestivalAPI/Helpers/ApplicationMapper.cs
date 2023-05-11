@@ -20,20 +20,14 @@ namespace HueFestivalAPI.Helpers
                 .ForMember(dest => dest.pathimage_list, opt => opt.MapFrom(src => src.ChuongTrinhImages))
                 .ForMember(dest => dest.details_list, opt => opt.MapFrom(src => src.ChuongTrinhDetails));
             CreateMap<ChuongTrinhImage, ChuongTrinhImageDTO>()
-                .ForMember(dest => dest.id_pathimage, opt => opt.MapFrom(src => src.IdImage))
-                .ForMember(dest => dest.pathimage, opt => opt.MapFrom(src => src.PathImage))
-                .ForMember(dest => dest.id_chuongtrinh, opt => opt.MapFrom(src => src.IdChuongTrinh))
-                .ForMember(dest => dest.ChuongTrinh, opt => opt.MapFrom(src => src.ChuongTrinh));
+                .ForMember(dest => dest.pathimage, opt => opt.MapFrom(src => src.PathImage));
             CreateMap<ChuongTrinhDetails, ChuongTrinhDetailsDTO>()
                 .ForMember(dest => dest.time, opt => opt.MapFrom(src => src.Time))
                 .ForMember(dest => dest.fdate, opt => opt.MapFrom(src => src.StartDate))
                 .ForMember(dest => dest.tdate, opt => opt.MapFrom(src => src.EndDate))
                 .ForMember(dest => dest.id_diadiem, opt => opt.MapFrom(src => src.IdDiaDiem))
                 .ForMember(dest => dest.id_nhom, opt => opt.MapFrom(src => src.IdNhom))
-                .ForMember(dest => dest.id_doan, opt => opt.MapFrom(src => src.IdDoan))
-                .ForMember(dest => dest.diadiem_name, opt => opt.MapFrom(src => src.DiaDiemName))
-                .ForMember(dest => dest.nhom_name, opt => opt.MapFrom(src => src.NhomName))
-                .ForMember(dest => dest.doan_name, opt => opt.MapFrom(src => src.DoanName));
+                .ForMember(dest => dest.id_doan, opt => opt.MapFrom(src => src.IdDoan));
             CreateMap<ChuongTrinh, ChuongTrinhTheoNgayDTO>()
                 .ForMember(dest => dest.md5, opt => opt.MapFrom(src => src.Md5))
                 .ForMember(dest => dest.details_list, opt => opt.MapFrom(src => src.ChuongTrinhDetails));
@@ -41,8 +35,7 @@ namespace HueFestivalAPI.Helpers
                 .ForMember(dest => dest.time, opt => opt.MapFrom(src => src.Time))
                 .ForMember(dest => dest.fdate, opt => opt.MapFrom(src => src.StartDate))
                 .ForMember(dest => dest.tdate, opt => opt.MapFrom(src => src.EndDate))
-                .ForMember(dest => dest.id_diadiem, opt => opt.MapFrom(src => src.IdDiaDiem))
-                .ForMember(dest => dest.diadiem_name, opt => opt.MapFrom(src => src.DiaDiemName));
+                .ForMember(dest => dest.id_diadiem, opt => opt.MapFrom(src => src.IdDiaDiem));
             CreateMap<DiaDiemMenu, DiaDiemMenuDTO>()
                 .ForMember(dest => dest.id, opt => opt.MapFrom(src => src.IdMenu))
                 .ForMember(dest => dest.title, opt => opt.MapFrom(src => src.Title))
@@ -109,6 +102,7 @@ namespace HueFestivalAPI.Helpers
                 .ForMember(dest => dest.id, opt => opt.MapFrom(src => src.IdHoTro))
                 .ForMember(dest => dest.title, opt => opt.MapFrom(src => src.Title))
                 .ForMember(dest => dest.content, opt => opt.MapFrom(src => src.Content));
+            CreateMap<ChuongTrinh, AddChuongTrinhDTO>().ReverseMap();
         }
     }
 }

@@ -15,12 +15,6 @@ namespace HueFestivalAPI.Models
         public int IdDiaDiem { get; set; }
         public int IdNhom { get; set; }
         public int? IdDoan { get; set; }
-        [MaxLength(50)]
-        public string? DiaDiemName { get; set; }
-        [MaxLength(50)]
-        public string? NhomName { get; set; }
-        [MaxLength(50)]
-        public string? DoanName { get; set; }
         public ChuongTrinh ChuongTrinh { get; set; }
         public DiaDiem DiaDiem { get; set; }
         public NhomChuongTrinh NhomChuongTrinh { get; set; }
