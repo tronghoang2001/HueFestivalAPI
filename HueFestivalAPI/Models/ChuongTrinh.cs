@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace HueFestivalAPI.Models
 {
@@ -19,7 +20,9 @@ namespace HueFestivalAPI.Models
         public int Arrange { get; set; }
         [MaxLength(200)]
         public string? Md5 { get; set; }
+        [JsonIgnore]
         public ICollection<ChuongTrinhImage> ChuongTrinhImages { get; set; }
+        [JsonIgnore]
         public ICollection<ChuongTrinhDetails> ChuongTrinhDetails { get; set; }
     }
 }

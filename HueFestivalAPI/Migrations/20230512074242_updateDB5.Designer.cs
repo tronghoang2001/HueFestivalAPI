@@ -4,6 +4,7 @@ using HueFestivalAPI.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HueFestivalAPI.Migrations
 {
     [DbContext(typeof(HueFestivalContext))]
-    partial class HueFestivalContextModelSnapshot : ModelSnapshot
+    [Migration("20230512074242_updateDB5")]
+    partial class updateDB5
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -419,6 +421,37 @@ namespace HueFestivalAPI.Migrations
                     b.ToTable("DoanChuongTrinh");
                 });
 
+            modelBuilder.Entity("HueFestivalAPI.Models.KhachHang", b =>
+                {
+                    b.Property<int>("IdKhachHang")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdKhachHang"), 1L, 1);
+
+                    b.Property<string>("HoTen")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("NgaySinh")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("SoCMND")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
+
+                    b.Property<string>("SoDienThoai")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
+
+                    b.HasKey("IdKhachHang");
+
+                    b.ToTable("KhachHang");
+                });
+
             modelBuilder.Entity("HueFestivalAPI.Models.LoaiVe", b =>
                 {
                     b.Property<int>("IdLoaiVe")
@@ -530,12 +563,18 @@ namespace HueFestivalAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdThongTin"), 1L, 1);
 
+                    b.Property<int?>("ChiTietDiemBanVeIdChiTietDiemBanVe")
+                        .HasColumnType("int");
+
                     b.Property<string>("HoTen")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("IdVe")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("KhachHangIdKhachHang")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("NgayDat")
@@ -557,15 +596,16 @@ namespace HueFestivalAPI.Migrations
                     b.Property<int>("SoLuong")
                         .HasColumnType("int");
 
-                    b.Property<bool>("TinhTrangThanhToan")
-                        .HasColumnType("bit");
-
                     b.Property<decimal>("TongTien")
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("IdThongTin");
 
+                    b.HasIndex("ChiTietDiemBanVeIdChiTietDiemBanVe");
+
                     b.HasIndex("IdVe");
+
+                    b.HasIndex("KhachHangIdKhachHang");
 
                     b.ToTable("ThongTinDatVe");
                 });
@@ -833,11 +873,19 @@ namespace HueFestivalAPI.Migrations
 
             modelBuilder.Entity("HueFestivalAPI.Models.ThongTinDatVe", b =>
                 {
+                    b.HasOne("HueFestivalAPI.Models.ChiTietDiemBanVe", null)
+                        .WithMany("HoaDons")
+                        .HasForeignKey("ChiTietDiemBanVeIdChiTietDiemBanVe");
+
                     b.HasOne("HueFestivalAPI.Models.Ve", "Ve")
                         .WithMany("ThongTinDatVes")
                         .HasForeignKey("IdVe")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("HueFestivalAPI.Models.KhachHang", null)
+                        .WithMany("HoaDons")
+                        .HasForeignKey("KhachHangIdKhachHang");
 
                     b.Navigation("Ve");
                 });
@@ -877,6 +925,11 @@ namespace HueFestivalAPI.Migrations
                     b.Navigation("DiaDiems");
 
                     b.Navigation("TinTucs");
+                });
+
+            modelBuilder.Entity("HueFestivalAPI.Models.ChiTietDiemBanVe", b =>
+                {
+                    b.Navigation("HoaDons");
                 });
 
             modelBuilder.Entity("HueFestivalAPI.Models.ChucNang", b =>
@@ -919,6 +972,11 @@ namespace HueFestivalAPI.Migrations
             modelBuilder.Entity("HueFestivalAPI.Models.DoanChuongTrinh", b =>
                 {
                     b.Navigation("ChuongTrinhDetails");
+                });
+
+            modelBuilder.Entity("HueFestivalAPI.Models.KhachHang", b =>
+                {
+                    b.Navigation("HoaDons");
                 });
 
             modelBuilder.Entity("HueFestivalAPI.Models.LoaiVe", b =>

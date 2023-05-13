@@ -9,7 +9,7 @@ namespace HueFestivalAPI.Models
         [Key]
         public int IdCheckin { get; set; }
         public DateTime DateCheckin { get; set; }
-        public int IdHoaDon { get; set; }
-        public HoaDon HoaDon { get; set; }
+        public int IdThongTin { get; set; }
+        public ThongTinDatVe ThongTinDatVe { get; set; }
     }
 }

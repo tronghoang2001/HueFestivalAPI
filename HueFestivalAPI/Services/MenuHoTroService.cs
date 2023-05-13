@@ -63,12 +63,15 @@ namespace HueFestivalAPI.Services
         }
         public async Task<MenuHoTro> UpdateMenuAsync(AddMenuHoTroDTO menuHoTroDto, int id)
         {
-            var menu = new MenuHoTro
+            var menu = await _context.MenuHoTros.FindAsync(id);
+
+            if (menu == null)
             {
-                IdHoTro = id,
-                Title = menuHoTroDto.Title,
-                Content = menuHoTroDto.Content,
-            };
+                return null;
+            }
+
+            menu.Title = menuHoTroDto.Title;
+            menu.Content = menuHoTroDto.Content;
 
             _context.MenuHoTros.Update(menu);
             await _context.SaveChangesAsync();

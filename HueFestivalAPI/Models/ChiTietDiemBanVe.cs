@@ -13,6 +13,5 @@ namespace HueFestivalAPI.Models
         public DiemBanVe DiemBanVe { get; set; }
         public int IdVe { get; set; }
         public Ve Ve { get; set; }
-        public ICollection<HoaDon> HoaDons { get; set; }
     }
 }

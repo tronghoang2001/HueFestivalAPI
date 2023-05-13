@@ -1,8 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace HueFestivalAPI.DTO
+﻿namespace HueFestivalAPI.DTO
 {
-    public class AddChuongTrinhDTO
+    public class UpdateChuongTrinhDTO
     {
         public string Name { get; set; }
         public string Content { get; set; }
@@ -10,7 +8,5 @@ namespace HueFestivalAPI.DTO
         public decimal Price { get; set; }
         public int TypeProgram { get; set; }
         public int Arrange { get; set; }
-        public List<ChuongTrinhImageDTO> Images { get; set; }
-        public List<UpdateChuongTrinhDetailsDTO> Details { get; set; }
     }
 }

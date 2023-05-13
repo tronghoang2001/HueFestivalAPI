@@ -151,7 +151,7 @@ namespace HueFestivalAPI.Services
 
         public async Task<ChuongTrinh> AddChuongTrinhAsync(AddChuongTrinhDTO chuongTrinhDto)
         {
-            var chuongtrinh = new ChuongTrinh
+            var program = new ChuongTrinh
             {
                 Name = chuongTrinhDto.Name,
                 Content = chuongTrinhDto.Content,
@@ -159,55 +159,66 @@ namespace HueFestivalAPI.Services
                 Price = chuongTrinhDto.Price,
                 TypeProgram = chuongTrinhDto.TypeProgram,
                 Arrange = chuongTrinhDto.Arrange,
-                Md5 = ""
+                ChuongTrinhDetails = new List<ChuongTrinhDetails>(),
+                ChuongTrinhImages = new List<ChuongTrinhImage>()
             };
 
-            await _context.ChuongTrinhs.AddAsync(chuongtrinh);
-            await _context.SaveChangesAsync();
-
-            return chuongtrinh;
-        }
-
-        public async Task<ChuongTrinhDetails> AddChuongTrinhDetailsAsync(AddChuongTrinhDetailsDTO detailsDto, int id)
-        {
-            var details = new ChuongTrinhDetails
+            foreach (var imageModel in chuongTrinhDto.Images)
             {
-                Time = TimeSpan.Parse(detailsDto.Time),
-                StartDate = DateTime.Parse(detailsDto.StartDate),
-                EndDate = DateTime.Parse(detailsDto.EndDate),
-                IdChuongTrinh = id,
-                IdDiaDiem = detailsDto.IdDiaDiem,
-                IdNhom = detailsDto.IdNhom
-            };
+                var image = new ChuongTrinhImage
+                {
+                    PathImage = imageModel.pathimage
+                };
+                program.ChuongTrinhImages.Add(image);
+            }
 
-            await _context.ChuongTrinhDetails.AddAsync(details);
-            await _context.SaveChangesAsync();
-
-            return details;
-        }
-
-        public async Task<ChuongTrinhImage> AddChuongTrinhImageAsync(ChuongTrinhImageDTO imageDto, int idchuongtrinh)
-        {
-            var image = new ChuongTrinhImage
+            foreach (var detailModel in chuongTrinhDto.Details)
             {
-                PathImage = imageDto.pathimage,
-                IdChuongTrinh = idchuongtrinh
-            };
+                var detail = new ChuongTrinhDetails
+                {
+                    Time = TimeSpan.Parse(detailModel.Time),
+                    StartDate = DateTime.Parse(detailModel.StartDate),
+                    EndDate = DateTime.Parse(detailModel.EndDate),
+                    IdDiaDiem = detailModel.IdDiaDiem,
+                    IdNhom = detailModel.IdNhom
+                };
+                program.ChuongTrinhDetails.Add(detail);
+            }
 
-            await _context.ChuongTrinhImages.AddAsync(image);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _context.ChuongTrinhs.Add(program);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                var innerException = ex.InnerException;
+                while (innerException.InnerException != null)
+                {
+                    innerException = innerException.InnerException;
+                }
 
-            return image;
+                throw new Exception(innerException.Message);
+            }
+
+            return program;
         }
 
         public async Task<ChuongTrinhImage> UpdateImageChuongTrinhAsync(ChuongTrinhImageDTO imageDto, int idchuongtrinh, int idimage)
         {
-            var image = new ChuongTrinhImage
+            var image = await _context.ChuongTrinhImages.FindAsync(idimage);
+
+            if (image == null)
             {
-                IdImage = idimage,
-                PathImage = imageDto.pathimage,
-                IdChuongTrinh = idchuongtrinh
-            };
+                return null;
+            }
+
+            if(image.IdChuongTrinh != idchuongtrinh)
+            {
+                return null;
+            }
+
+            image.PathImage = imageDto.pathimage;
 
             _context.ChuongTrinhImages.Update(image);
             await _context.SaveChangesAsync();
@@ -230,36 +241,46 @@ namespace HueFestivalAPI.Services
             }
         }
 
-        public async Task<ChuongTrinh> UpdateChuongTrinhAsync(AddChuongTrinhDTO chuongTrinhDto, int id)
+        public async Task<ChuongTrinh> UpdateChuongTrinhAsync(UpdateChuongTrinhDTO chuongTrinhDto, int id)
         {
-            var chuongtrinh = new ChuongTrinh
+            var chuongtrinh = await _context.ChuongTrinhs.FindAsync(id);
+
+            if (chuongtrinh == null)
             {
-                IdChuongTrinh = id,
-                Name = chuongTrinhDto.Name,
-                Content = chuongTrinhDto.Content,
-                TypeInOff = chuongTrinhDto.TypeInOff,
-                Price = chuongTrinhDto.Price,
-                TypeProgram = chuongTrinhDto.TypeProgram,
-                Arrange = chuongTrinhDto.Arrange
-            };
+                return null;
+            }
+
+            chuongtrinh.Name = chuongTrinhDto.Name;
+            chuongtrinh.Content = chuongTrinhDto.Content;
+            chuongtrinh.TypeInOff = chuongTrinhDto.TypeInOff;
+            chuongtrinh.Price = chuongTrinhDto.Price;
+            chuongtrinh.TypeProgram = chuongTrinhDto.TypeProgram;
+            chuongtrinh.Arrange = chuongTrinhDto.Arrange;
 
             _context.ChuongTrinhs.Update(chuongtrinh);
             await _context.SaveChangesAsync();
             return chuongtrinh;
         }
 
-        public async Task<ChuongTrinhDetails> UpdateChuongTrinhDetailsAsync(AddChuongTrinhDetailsDTO detailsDto, int idchuongtrinh, int id_details)
+        public async Task<ChuongTrinhDetails> UpdateChuongTrinhDetailsAsync(UpdateChuongTrinhDetailsDTO detailsDto, int idchuongtrinh, int id_details)
         {
-            var details = new ChuongTrinhDetails
+            var details = await _context.ChuongTrinhDetails.FindAsync(id_details);
+
+            if (details == null)
             {
-                IdDetails = id_details,
-                IdChuongTrinh = idchuongtrinh,
-                Time = TimeSpan.Parse(detailsDto.Time),
-                StartDate = DateTime.Parse(detailsDto.StartDate),
-                EndDate = DateTime.Parse(detailsDto.EndDate),
-                IdDiaDiem = detailsDto.IdDiaDiem,
-                IdNhom = detailsDto.IdNhom
-            };
+                return null;
+            }
+
+            if(details.IdChuongTrinh != idchuongtrinh)
+            {
+                return null;
+            }
+
+            details.Time = TimeSpan.Parse(detailsDto.Time);
+            details.StartDate = DateTime.Parse(detailsDto.StartDate);
+            details.EndDate = DateTime.Parse(detailsDto.EndDate);
+            details.IdDiaDiem = detailsDto.IdDiaDiem;
+            details.IdNhom = detailsDto.IdNhom;
 
             _context.ChuongTrinhDetails.Update(details);
             await _context.SaveChangesAsync();

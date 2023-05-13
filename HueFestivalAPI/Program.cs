@@ -29,6 +29,7 @@ builder.Services.AddScoped<IDiaDiemService, DiaDiemService>();
 builder.Services.AddScoped<ITinTucService, TinTucService>();
 builder.Services.AddScoped<IMenuHoTroService, MenuHoTroService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IVeService, VeService>();
 
 //JWT Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options => {

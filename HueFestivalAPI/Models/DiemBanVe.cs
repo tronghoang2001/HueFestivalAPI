@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace HueFestivalAPI.Models
 {
@@ -17,6 +18,7 @@ namespace HueFestivalAPI.Models
         public string PhoneNumber { get; set; }
         public double Longtitude { get; set; }
         public double Latitude { get; set; }
+        [JsonIgnore]
         public ICollection<ChiTietDiemBanVe> ChiTietDiemBanVes { get; set; }
     }
 }

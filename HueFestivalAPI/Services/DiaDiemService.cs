@@ -2,6 +2,7 @@
 using HueFestivalAPI.DTO;
 using HueFestivalAPI.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Principal;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace HueFestivalAPI.Services
@@ -139,13 +140,16 @@ namespace HueFestivalAPI.Services
 
         public async Task<DiaDiemMenu> UpdateDiaDiemMenuAsync(AddDiaDiemMenuDTO diaDiemMenuDto, int id)
         {
-            var diaDiemMenu = new DiaDiemMenu
+            var diaDiemMenu = await _context.DiaDiemMenus.FindAsync(id);
+
+            if (diaDiemMenu == null)
             {
-                IdMenu = id,
-                Title = diaDiemMenuDto.Title,
-                PathIcon = diaDiemMenuDto.PathIcon,
-                TypeData = diaDiemMenuDto.TypeData
-            };
+                return null;
+            }
+
+            diaDiemMenu.Title = diaDiemMenuDto.Title;
+            diaDiemMenu.PathIcon = diaDiemMenuDto.PathIcon;
+            diaDiemMenu.TypeData = diaDiemMenuDto.TypeData;
 
             _context.DiaDiemMenus.Update(diaDiemMenu);
             await _context.SaveChangesAsync();
@@ -154,14 +158,17 @@ namespace HueFestivalAPI.Services
 
         public async Task<DiaDiemSubMenu> UpdateDiaDiemSubMenuAsync(AddDiaDiemSubMenuDTO diaDiemSubMenuDto, int id)
         {
-            var diaDiemSubMenu = new DiaDiemSubMenu
+            var diaDiemSubMenu = await _context.DiaDiemSubMenus.FindAsync(id);
+
+            if (diaDiemSubMenu == null)
             {
-                IdSubMenu = id,
-                Title = diaDiemSubMenuDto.Title,
-                PathIcon = diaDiemSubMenuDto.PathIcon,
-                TypeData = diaDiemSubMenuDto.TypeData,
-                IdMenu = diaDiemSubMenuDto.IdMenu
-            };
+                return null;
+            }
+
+            diaDiemSubMenu.Title = diaDiemSubMenuDto.Title;
+            diaDiemSubMenu.PathIcon = diaDiemSubMenuDto.PathIcon;
+            diaDiemSubMenu.TypeData = diaDiemSubMenuDto.TypeData;
+            diaDiemSubMenu.IdMenu = diaDiemSubMenuDto.IdMenu;
 
             _context.DiaDiemSubMenus.Update(diaDiemSubMenu);
             await _context.SaveChangesAsync();
@@ -170,20 +177,23 @@ namespace HueFestivalAPI.Services
 
         public async Task<DiaDiem> UpdateDiaDiemAsync(AddDiaDiemDTO diaDiemDto, int id)
         {
-            var diaDiem = new DiaDiem
+            var diaDiem = await _context.DiaDiems.FindAsync(id);
+
+            if (diaDiem == null)
             {
-                IdDiaDiem = id,
-                Title = diaDiemDto.Title,
-                Summary = diaDiemDto.Summary,
-                Content = diaDiemDto.Content,
-                PathImage = diaDiemDto.PathImage,
-                Longtitude = diaDiemDto.Longtitude,
-                Latitude = diaDiemDto.Latitude,
-                TypeData = diaDiemDto.TypeData,
-                PostDate = DateTime.Now,
-                IdAccount = diaDiemDto.IdAccount,
-                IdSubMenu = diaDiemDto.IdSubMenu,
-            };
+                return null;
+            }
+
+            diaDiem.Title = diaDiemDto.Title;
+            diaDiem.Summary = diaDiemDto.Summary;
+            diaDiem.Content = diaDiemDto.Content;
+            diaDiem.PathImage = diaDiemDto.PathImage;
+            diaDiem.Longtitude = diaDiemDto.Longtitude;
+            diaDiem.Latitude = diaDiemDto.Latitude;
+            diaDiem.TypeData = diaDiemDto.TypeData;
+            diaDiem.PostDate = DateTime.Now;
+            diaDiem.IdAccount = diaDiemDto.IdAccount;
+            diaDiem.IdSubMenu = diaDiemDto.IdSubMenu;
 
             _context.DiaDiems.Update(diaDiem);
             await _context.SaveChangesAsync();

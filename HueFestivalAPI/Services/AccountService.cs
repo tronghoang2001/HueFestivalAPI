@@ -21,7 +21,7 @@ namespace HueFestivalAPI.Services
             _configuration = configuration;
         }
 
-        public async Task<Account> AddAccountAsync(AccountDTO accountDto)
+        public async Task<Account> AddAccountAsync(AddAccountDTO accountDto)
         {
             var account = new Account
             {
@@ -29,7 +29,7 @@ namespace HueFestivalAPI.Services
                 Email = accountDto.Email,
                 Password = BCrypt.Net.BCrypt.HashPassword(accountDto.Password),
                 PhoneNumber = accountDto.PhoneNumber,
-                Role = "User",
+                Role = "User", 
                 Status = true,
                 IdQuyen = 3,
             };
@@ -82,6 +82,199 @@ namespace HueFestivalAPI.Services
                 return currentUser;
             }
             return null;
+        }
+
+        public async Task<Account> AdminUpdateAccountAsync(AdminUpdateAccountDTO accountDto, int id)
+        {
+            var account = await _context.Account.FindAsync(id);
+
+            if (account == null)
+            {
+                return null;
+            }
+
+            var quyen = await _context.Quyens.FindAsync(accountDto.IdQuyen);
+
+            account.IdQuyen = accountDto.IdQuyen;
+            account.Status = accountDto.Status;
+            account.Role = quyen.Name;
+
+            _context.Account.Update(account);
+            await _context.SaveChangesAsync();
+
+            return account;
+        }
+
+        public async Task<Account> UserUpdateAccountAsync(UserUpdateAccountDTO accountDto, int id)
+        {
+            var account = await _context.Account.FindAsync(id);
+
+            if (account == null)
+            {
+                return null;
+            }
+
+            account.FullName = accountDto.FullName;
+            account.PhoneNumber = accountDto.PhoneNumber;
+
+            _context.Account.Update(account);
+            await _context.SaveChangesAsync();
+
+            return account;
+        }
+
+        public async Task<List<AccountDTO>> GetAllAccountAsync()
+        {
+            var accounts = await _context.Account
+               .ToListAsync();
+            return accounts.Select(c => new AccountDTO
+            {
+                id = c.IdAccount,
+                fullname = c.FullName,
+                email = c.Email,
+                phonenumber = c.PhoneNumber,
+                role = c.Role,
+                status = c.Status
+            }).ToList();
+        }
+
+        public async Task<Account> ChangePasswordAsync(ChangePasswordDTO accountDto, int id)
+        {
+            var account = await _context.Account.FindAsync(id);
+
+            if (account == null)
+            {
+                return null;
+            }
+
+            if (!BCrypt.Net.BCrypt.Verify(accountDto.OldPassword, account.Password))
+            {
+                throw new Exception("Mật khẩu cũ không hợp lệ!");
+            }
+
+            if (accountDto.NewPassword != accountDto.ConfirmPassword)
+            {
+                throw new Exception("Xác nhận mật khẩu không trùng khớp!");
+            }
+
+            account.Password = BCrypt.Net.BCrypt.HashPassword(accountDto.NewPassword);
+            _context.Account.Update(account);
+            await _context.SaveChangesAsync();
+
+            return account;
+        }
+
+        public async Task<List<ChucNangDTO>> GetAllChucNangAsync()
+        {
+            var chucnangs = await _context.ChucNangs
+               .ToListAsync();
+            return chucnangs.Select(c => new ChucNangDTO
+            {
+                id = c.IdChucNang,
+                name = c.Name
+            }).ToList();
+        }
+
+        public async Task<ChucNang> AddChucNangAsync(AddChucNangDTO chucNangDto)
+        {
+            var chucnang = new ChucNang
+            {
+                Name = chucNangDto.Name
+            };
+
+            await _context.ChucNangs.AddAsync(chucnang);
+            await _context.SaveChangesAsync();
+
+            return chucnang;
+        }
+
+        public async Task<ChucNang> UpdateChucNangAsync(AddChucNangDTO chucNangDto, int id)
+        {
+            var chucnang = await _context.ChucNangs.FindAsync(id);
+
+            if (chucnang == null)
+            {
+                return null;
+            }
+
+            chucnang.Name = chucNangDto.Name;
+
+            _context.ChucNangs.Update(chucnang);
+            await _context.SaveChangesAsync();
+
+            return chucnang;
+        }
+
+        public async Task DeleteChucNangAsync(int id)
+        {
+            var chucnang = await _context.ChucNangs
+                .FirstOrDefaultAsync(c => c.IdChucNang == id);
+
+            if (chucnang != null)
+            {
+                _context.ChucNangs.Remove(chucnang);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<Quyen> AddQuyenAsync(AddQuyenDTO quyenDto)
+        {
+            var quyen = new Quyen
+            {
+                Name = quyenDto.Name,
+                PhanQuyenChucNangs = new List<PhanQuyenChucNang>()
+            };
+
+            foreach (var chucNangId in quyenDto.ChucNangIds)
+            {
+                var chucNang = await _context.ChucNangs.FindAsync(chucNangId);
+                if (chucNang != null)
+                {
+                    var phanQuyenChucNang = new PhanQuyenChucNang
+                    {
+                        Quyen = quyen,
+                        ChucNang = chucNang
+                    };
+                    quyen.PhanQuyenChucNangs.Add(phanQuyenChucNang);
+                }
+            }
+
+            await _context.Quyens.AddAsync(quyen);
+            await _context.SaveChangesAsync();
+
+            return quyen;
+        }
+
+        public async Task<List<QuyenDTO>> GetAllQuyenAsync()
+        {
+            var quyens = await _context.Quyens
+                .Include(c => c.PhanQuyenChucNangs)
+                    .ThenInclude(c => c.ChucNang)
+                .ToListAsync();
+            return quyens.Select(c => new QuyenDTO
+            {
+                id = c.IdQuyen,
+                quyen_name = c.Name,
+                chucnang_list = c.PhanQuyenChucNangs.Select(d => new PhanQuyenChucNangDTO
+                {
+                    id = d.IdChucNang,
+                    chucnang_name = d.ChucNang.Name
+                }).ToList()
+            }).ToList();
+        }
+
+        public async Task DeleteQuyenAsync(int id)
+        {
+            var quyen = await _context.Quyens
+                .Include(c => c.PhanQuyenChucNangs)
+                .FirstOrDefaultAsync(c => c.IdQuyen == id);
+
+            if (quyen != null)
+            {
+                _context.PhanQuyenChucNangs.RemoveRange(quyen.PhanQuyenChucNangs);
+                _context.Quyens.Remove(quyen);
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

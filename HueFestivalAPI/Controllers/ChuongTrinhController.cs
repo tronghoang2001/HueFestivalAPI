@@ -55,7 +55,7 @@ namespace HueFestivalAPI.Controllers
             return chuongTrinhs;
         }
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpPost("chuongtrinh")]
         public async Task<IActionResult> AddChuongTrinh(AddChuongTrinhDTO chuongTrinhDto)
         {
@@ -63,36 +63,6 @@ namespace HueFestivalAPI.Controllers
             {
                 var chuongtrinh = await _chuongTrinhService.AddChuongTrinhAsync(chuongTrinhDto);
                 return Ok(chuongtrinh);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-        [Authorize(Roles = "Admin")]
-        [HttpPost("details/{id}")]
-        public async Task<IActionResult> AddChuongTrinhDetails(AddChuongTrinhDetailsDTO detailsDto, int id)
-        {
-            try
-            {
-                var details = await _chuongTrinhService.AddChuongTrinhDetailsAsync(detailsDto, id);
-                return Ok(details);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-        [Authorize(Roles = "Admin")]
-        [HttpPost("image/{idchuongtrinh}")]
-        public async Task<IActionResult> AddChuongTrinhImage(ChuongTrinhImageDTO imageDto, int idchuongtrinh)
-        {
-            try
-            {
-                var image = await _chuongTrinhService.AddChuongTrinhImageAsync(imageDto, idchuongtrinh);
-                return Ok(image);
             }
             catch (Exception ex)
             {
@@ -125,7 +95,7 @@ namespace HueFestivalAPI.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateChuongTrinh(AddChuongTrinhDTO chuongTrinhDto, int id)
+        public async Task<IActionResult> UpdateChuongTrinh(UpdateChuongTrinhDTO chuongTrinhDto, int id)
         {
             try
             {
@@ -138,9 +108,9 @@ namespace HueFestivalAPI.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpPut("{idchuongtrinh}/details/{id_details}")]
-        public async Task<IActionResult> UpdateChuongTrinhDetails(AddChuongTrinhDetailsDTO detailsDto, int idchuongtrinh, int id_details)
+        public async Task<IActionResult> UpdateChuongTrinhDetails(UpdateChuongTrinhDetailsDTO detailsDto, int idchuongtrinh, int id_details)
         {
             try
             {

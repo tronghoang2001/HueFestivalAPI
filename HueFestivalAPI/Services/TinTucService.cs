@@ -2,6 +2,8 @@
 using HueFestivalAPI.DTO;
 using HueFestivalAPI.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Principal;
+using System;
 
 namespace HueFestivalAPI.Services
 {
@@ -100,23 +102,26 @@ namespace HueFestivalAPI.Services
 
         public async Task<TinTuc> UpdateTinTucAsync(AddTinTucDTO tinTucDto, int id)
         {
-            var tintuc = new TinTuc
+            var tintuc = await _context.TinTucs.FindAsync(id);
+
+            if (tintuc == null)
             {
-                IdTinTuc = id,
-                TypeId = tinTucDto.TypeId,
-                OtherTypeId = 0,
-                Title = tinTucDto.Title,
-                Summary = tinTucDto.Summary,
-                Content = tinTucDto.Content,
-                PathImage = tinTucDto.PathImage,
-                PostDate = DateTime.Now,
-                ChangeDate = DateTime.Now,
-                Approved = tinTucDto.Approved,
-                Arrange = tinTucDto.Arrange,
-                Latitude = tinTucDto.Latitude,
-                Longtitude = tinTucDto.Longtitude,
-                IdAccount = 4
-            };
+                return null;
+            }
+
+            tintuc.TypeId = tinTucDto.TypeId;
+            tintuc.OtherTypeId = 0;
+            tintuc.Title = tinTucDto.Title;
+            tintuc.Summary = tinTucDto.Summary;
+            tintuc.Content = tinTucDto.Content;
+            tintuc.PathImage = tinTucDto.PathImage;
+            tintuc.PostDate = DateTime.Now;
+            tintuc.ChangeDate = DateTime.Now;
+            tintuc.Approved = tinTucDto.Approved;
+            tintuc.Arrange = tinTucDto.Arrange;
+            tintuc.Latitude = tinTucDto.Latitude;
+            tintuc.Longtitude = tinTucDto.Longtitude;
+            tintuc.IdAccount = 4;
 
             _context.TinTucs.Update(tintuc);
             await _context.SaveChangesAsync();

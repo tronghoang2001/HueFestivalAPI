@@ -26,8 +26,7 @@ namespace HueFestivalAPI.Models
         public DbSet<ChiTietDiemBanVe> ChiTietDiemBanVes { get; set; }
         public DbSet<ChucNang> ChucNangs { get; set; }
         public DbSet<DiemBanVe> DiemBanVes { get; set; }
-        public DbSet<HoaDon> HoaDons { get; set; }
-        public DbSet<KhachHang> KhachHangs { get; set; }
+        public DbSet<ThongTinDatVe> HoaDons { get; set; }
         public DbSet<LoaiVe> LoaiVes { get; set; }
         public DbSet<PhanQuyenChucNang> PhanQuyenChucNangs { get; set; }
         public DbSet<Quyen> Quyens { get; set; }
@@ -111,9 +110,9 @@ namespace HueFestivalAPI.Models
                 .WithMany(ct => ct.TinTucs)
                 .HasForeignKey(c => c.IdAccount);
             modelBuilder.Entity<Checkin>()
-                .HasOne(c => c.HoaDon)
+                .HasOne(c => c.ThongTinDatVe)
                 .WithMany(ct => ct.Checkins)
-                .HasForeignKey(c => c.IdHoaDon);
+                .HasForeignKey(c => c.IdThongTin);
             modelBuilder.Entity<ChiTietDiemBanVe>()
                 .HasOne(c => c.DiemBanVe)
                 .WithMany(ct => ct.ChiTietDiemBanVes)
@@ -122,14 +121,10 @@ namespace HueFestivalAPI.Models
                 .HasOne(c => c.Ve)
                 .WithMany(ct => ct.ChiTietDiemBanVes)
                 .HasForeignKey(c => c.IdVe);
-            modelBuilder.Entity<HoaDon>()
-                .HasOne(c => c.KhachHang)
-                .WithMany(ct => ct.HoaDons)
-                .HasForeignKey(c => c.IdKhachHang);
-            modelBuilder.Entity<HoaDon>()
-                .HasOne(c => c.ChiTietDiemBanVe)
-                .WithMany(ct => ct.HoaDons)
-                .HasForeignKey(c => c.IdChiTietDiemBanVe);
+            modelBuilder.Entity<ThongTinDatVe>()
+                .HasOne(c => c.Ve)
+                .WithMany(ct => ct.ThongTinDatVes)
+                .HasForeignKey(c => c.IdVe);
             modelBuilder.Entity<PhanQuyenChucNang>()
                 .HasOne(c => c.Quyen)
                 .WithMany(ct => ct.PhanQuyenChucNangs)

@@ -2,7 +2,7 @@
 
 namespace HueFestivalAPI.DTO
 {
-    public class AddChuongTrinhDetailsDTO
+    public class UpdateChuongTrinhDetailsDTO
     {
         public string Time { get; set; }
         public string StartDate { get; set; }

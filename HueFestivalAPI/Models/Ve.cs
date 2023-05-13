@@ -16,5 +16,6 @@ namespace HueFestivalAPI.Models
         public int IdLoaiVe { get; set; }
         public LoaiVe LoaiVe { get; set; }
         public ICollection<ChiTietDiemBanVe> ChiTietDiemBanVes { get; set; }
+        public ICollection<ThongTinDatVe> ThongTinDatVes { get; set; }
     }
 }
