@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using HueFestivalAPI.DTO;
 using HueFestivalAPI.Models;
+using HueFestivalAPI.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace HueFestivalAPI.Services
@@ -18,14 +19,9 @@ namespace HueFestivalAPI.Services
 
         public async Task<LoaiVe> AddLoaiVeAsync(AddLoaiVeDTO loaiveDto)
         {
-            var loaive = new LoaiVe
-            {
-                Name = loaiveDto.name
-            };
-
+            var loaive = _mapper.Map<LoaiVe>(loaiveDto);
             await _context.LoaiVes.AddAsync(loaive);
             await _context.SaveChangesAsync();
-
             return loaive;
         }
 
@@ -43,45 +39,29 @@ namespace HueFestivalAPI.Services
 
         public async Task<List<LoaiVeDTO>> GetAllLoaiVeAsync()
         {
-            var loaives = await _context.LoaiVes
-               .ToListAsync();
-            return loaives.Select(c => new LoaiVeDTO
-            {
-                id = c.IdLoaiVe,
-                name = c.Name
-            }).ToList();
+            var loaives = await _context.LoaiVes.ToListAsync();
+            return _mapper.Map<List<LoaiVeDTO>>(loaives);
         }
 
         public async Task<LoaiVe> UpdateLoaiVeAsync(AddLoaiVeDTO loaiveDto, int id)
         {
             var loaive = await _context.LoaiVes.FindAsync(id);
-
             if (loaive == null)
             {
                 return null;
             }
-
-            loaive.Name = loaiveDto.name;
-
+            _mapper.Map(loaiveDto, loaive);
             _context.LoaiVes.Update(loaive);
             await _context.SaveChangesAsync();
-
             return loaive;
         }
         public async Task<Ve> PhatHanhVeAsync(AddVeDTO veDto, int id_details)
         {
-            var ve = new Ve
-            {
-                GiaVe = veDto.GiaVe,
-                SoLuong = veDto.SoLuong,
-                NgayPhatHanh = DateTime.Now,
-                IdDetails = id_details,
-                IdLoaiVe = veDto.IdLoaiVe
-            };
-
+            var ve = _mapper.Map<Ve>(veDto);
+            ve.NgayPhatHanh = DateTime.Now;
+            ve.IdDetails = id_details;
             await _context.Ves.AddAsync(ve);
             await _context.SaveChangesAsync();
-
             return ve;
         }
 
@@ -94,16 +74,10 @@ namespace HueFestivalAPI.Services
                 .Include(c => c.ChuongTrinhDetails)
                     .ThenInclude(c => c.DiaDiem)
                 .ToListAsync();
-            return ves.Select(c => new VeDTO
-            {
-                id = c.IdVe,
-                gia = c.GiaVe,
-                soluong = c.SoLuong,
-                ngayphathanh = c.NgayPhatHanh,
-                loaive = c.LoaiVe.Name,
-                chuongtrinh_name = c.ChuongTrinhDetails.ChuongTrinh.Name,
-                diadiem_name = c.ChuongTrinhDetails.DiaDiem.Title
-            }).ToList();
+
+            var veDtos = _mapper.Map<List<VeDTO>>(ves);
+
+            return veDtos;
         }
 
         public async Task<List<DiemBanVeDTO>> GetAllDiemBanVeAsync()
@@ -114,21 +88,8 @@ namespace HueFestivalAPI.Services
                     .ThenInclude(c => c.ChuongTrinhDetails)
                     .ThenInclude(c => c.ChuongTrinh)
                 .ToListAsync();
-            return diembanves.Select(c => new DiemBanVeDTO
-            {
-                id = c.IdDiemBanVe,
-                name = c.Name,
-                address = c.Address,
-                phonenumber = c.PhoneNumber,
-                longtitude = c.Longtitude,
-                latitude = c.Latitude,
-                details_list = c.ChiTietDiemBanVes.Select(d => new ChiTietDiemBanVeDTO
-                {
-                    id = d.IdChiTietDiemBanVe,
-                    chuongtrinh_name = d.Ve.ChuongTrinhDetails.ChuongTrinh.Name,
-                    soluong = d.SoLuong
-                }).ToList()
-            }).ToList();
+
+            return _mapper.Map<List<DiemBanVeDTO>>(diembanves);
         }
 
         public async Task<DiemBanVe> AddDiemBanVeAsync(AddDiemBanVeDTO diemBanVeDto)

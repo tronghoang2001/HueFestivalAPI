@@ -1,5 +1,5 @@
 ﻿using HueFestivalAPI.DTO;
-using HueFestivalAPI.Services;
+using HueFestivalAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;

@@ -1,14 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Reflection;
-using System.Xml;
 
 namespace HueFestivalAPI.Models
 {
     public class HueFestivalContext : DbContext
     {
-        public HueFestivalContext(DbContextOptions<HueFestivalContext> options) : base(options) 
-        { 
-        
+        public HueFestivalContext(DbContextOptions<HueFestivalContext> options) : base(options)
+        {
+
         }
         #region DbSet
         public DbSet<Account> Account { get; set; }

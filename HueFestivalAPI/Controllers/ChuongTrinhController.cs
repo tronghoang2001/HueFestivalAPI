@@ -1,6 +1,6 @@
 ﻿using HueFestivalAPI.DTO;
 using HueFestivalAPI.Models;
-using HueFestivalAPI.Services;
+using HueFestivalAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -55,7 +55,7 @@ namespace HueFestivalAPI.Controllers
             return chuongTrinhs;
         }
 
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPost("chuongtrinh")]
         public async Task<IActionResult> AddChuongTrinh(AddChuongTrinhDTO chuongTrinhDto)
         {
@@ -108,7 +108,7 @@ namespace HueFestivalAPI.Controllers
             }
         }
 
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPut("{idchuongtrinh}/details/{id_details}")]
         public async Task<IActionResult> UpdateChuongTrinhDetails(UpdateChuongTrinhDetailsDTO detailsDto, int idchuongtrinh, int id_details)
         {

@@ -1,7 +1,9 @@
 ﻿using HueFestivalAPI.DTO;
 using HueFestivalAPI.Models;
-using HueFestivalAPI.Services;
+using HueFestivalAPI.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Data;
 
 namespace HueFestivalAPI.Controllers
 {
@@ -28,6 +30,7 @@ namespace HueFestivalAPI.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("loaive")]
         public async Task<IActionResult> AddLoaiVe(AddLoaiVeDTO loaiveDto)
         {
@@ -36,6 +39,7 @@ namespace HueFestivalAPI.Controllers
             return Ok(loaive);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("updateLoaiVe/{id}")]
         public async Task<ActionResult<LoaiVe>> UpdateLoaiVe(AddLoaiVeDTO loaiveDto, int id)
         {
@@ -50,8 +54,9 @@ namespace HueFestivalAPI.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("deleteLoaiVe/{id}")]
-        public async Task<ActionResult> DeleteQuyen(int id)
+        public async Task<ActionResult> DeleteLoaiVe(int id)
         {
             await _veService.DeleteLoaiVeAsync(id);
             return Ok();
@@ -70,6 +75,7 @@ namespace HueFestivalAPI.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("phatHanhVe/{id_details}")]
         public async Task<IActionResult> PhatHanhVe(AddVeDTO veDto, int id_details)
         {
@@ -91,6 +97,7 @@ namespace HueFestivalAPI.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("diemBanVe")]
         public async Task<IActionResult> AddDiemBanVe(AddDiemBanVeDTO diemBanVeDto)
         {
@@ -99,6 +106,7 @@ namespace HueFestivalAPI.Controllers
             return Ok(ve);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("deleteDiemBanVe/{id}")]
         public async Task<ActionResult> DeleteDiemBanVe(int id)
         {

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using HueFestivalAPI.DTO;
 using HueFestivalAPI.Models;
+using HueFestivalAPI.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using static System.Net.Mime.MediaTypeNames;
@@ -17,6 +18,7 @@ namespace HueFestivalAPI.Services
             _context = context;
             _mapper = mapper;
         }
+
         public async Task<List<ChuongTrinhDTO>> GetAllChuongTrinhAsync()
         {
             var chuongtrinhs = await _context.ChuongTrinhs
@@ -24,71 +26,27 @@ namespace HueFestivalAPI.Services
                     .ThenInclude(c => c.DiaDiem)
                 .Include(c => c.ChuongTrinhDetails)
                     .ThenInclude(c => c.NhomChuongTrinh)
-                .Include(c => c.ChuongTrinhImages)
-                .ToListAsync();
-            return chuongtrinhs.Select(c => new ChuongTrinhDTO
-            {
-                id_chuongtrinh = c.IdChuongTrinh,
-                chuongtrinh_name = c.Name,
-                chuongtrinh_content = c.Content,
-                type_inoff = c.TypeInOff,
-                price = c.Price,
-                type_program = c.TypeProgram,
-                arrange = c.Arrange,
-                details_list = c.ChuongTrinhDetails.Select(d => new ChuongTrinhDetailsDTO
-                {
-                    time = d.Time.ToString(),
-                    fdate = d.StartDate.ToString("yyyy-MM-dd"),
-                    tdate = d.EndDate.ToString("yyyy-MM-dd"),
-                    id_doan = 0,
-                    doan_name = null,
-                    id_diadiem = d.IdDiaDiem,
-                    diadiem_name = d.DiaDiem.Title,
-                    id_nhom = d.IdNhom,
-                    nhom_name = d.NhomChuongTrinh.Name
-                }).ToList(),
-                pathimage_list = c.ChuongTrinhImages.Select(i => i.PathImage).ToList()
-            }).ToList();
+                .Include(c => c.ChuongTrinhImages).ToListAsync();
+            var chuongtrinhDTOs = _mapper.Map<List<ChuongTrinhDTO>>(chuongtrinhs);
+            return chuongtrinhDTOs;
         }
 
         public async Task<ChuongTrinhDTO> GetChuongTrinhByIdAsync(int idChuongTrinh)
         {
             var chuongTrinh = await _context.ChuongTrinhs
-            .Include(c => c.ChuongTrinhImages)
-            .Include(c => c.ChuongTrinhDetails)
-                .ThenInclude(c => c.DiaDiem)
-            .Include(c => c.ChuongTrinhDetails)
-                .ThenInclude(c => c.NhomChuongTrinh)
-            .FirstOrDefaultAsync(c => c.IdChuongTrinh == idChuongTrinh);
+                .Include(c => c.ChuongTrinhImages)
+                .Include(c => c.ChuongTrinhDetails)
+                    .ThenInclude(c => c.DiaDiem)
+                .Include(c => c.ChuongTrinhDetails)
+                    .ThenInclude(c => c.NhomChuongTrinh)
+                .FirstOrDefaultAsync(c => c.IdChuongTrinh == idChuongTrinh);
 
             if (chuongTrinh == null)
             {
                 return null;
             }
 
-            var chuongTrinhDto = new ChuongTrinhDTO
-            {
-                id_chuongtrinh = chuongTrinh.IdChuongTrinh,
-                chuongtrinh_name = chuongTrinh.Name,
-                chuongtrinh_content = chuongTrinh.Content,
-                type_inoff = chuongTrinh.TypeInOff,
-                price = chuongTrinh.Price,
-                type_program = chuongTrinh.TypeProgram,
-                arrange = chuongTrinh.Arrange,
-                details_list = chuongTrinh.ChuongTrinhDetails.Select(d => new ChuongTrinhDetailsDTO
-                {
-                    time = d.Time.ToString(),
-                    fdate = d.StartDate.ToString("yyyy-MM-dd"),
-                    tdate = d.EndDate.ToString("yyyy-MM-dd"),
-                    id_doan = 0,
-                    doan_name = null,
-                    id_diadiem = d.IdDiaDiem,
-                    diadiem_name = d.DiaDiem.Title,
-                    id_nhom = d.IdNhom,
-                    nhom_name = d.NhomChuongTrinh.Name
-                }).ToList(),
-                pathimage_list = chuongTrinh.ChuongTrinhImages.Select(i => i.PathImage).ToList()
-            };
+            var chuongTrinhDto = _mapper.Map<ChuongTrinhDTO>(chuongTrinh);
 
             return chuongTrinhDto;
         }
@@ -151,39 +109,7 @@ namespace HueFestivalAPI.Services
 
         public async Task<ChuongTrinh> AddChuongTrinhAsync(AddChuongTrinhDTO chuongTrinhDto)
         {
-            var program = new ChuongTrinh
-            {
-                Name = chuongTrinhDto.Name,
-                Content = chuongTrinhDto.Content,
-                TypeInOff = chuongTrinhDto.TypeInOff,
-                Price = chuongTrinhDto.Price,
-                TypeProgram = chuongTrinhDto.TypeProgram,
-                Arrange = chuongTrinhDto.Arrange,
-                ChuongTrinhDetails = new List<ChuongTrinhDetails>(),
-                ChuongTrinhImages = new List<ChuongTrinhImage>()
-            };
-
-            foreach (var imageModel in chuongTrinhDto.Images)
-            {
-                var image = new ChuongTrinhImage
-                {
-                    PathImage = imageModel.pathimage
-                };
-                program.ChuongTrinhImages.Add(image);
-            }
-
-            foreach (var detailModel in chuongTrinhDto.Details)
-            {
-                var detail = new ChuongTrinhDetails
-                {
-                    Time = TimeSpan.Parse(detailModel.Time),
-                    StartDate = DateTime.Parse(detailModel.StartDate),
-                    EndDate = DateTime.Parse(detailModel.EndDate),
-                    IdDiaDiem = detailModel.IdDiaDiem,
-                    IdNhom = detailModel.IdNhom
-                };
-                program.ChuongTrinhDetails.Add(detail);
-            }
+            var program = _mapper.Map<ChuongTrinh>(chuongTrinhDto);
 
             try
             {
@@ -249,14 +175,7 @@ namespace HueFestivalAPI.Services
             {
                 return null;
             }
-
-            chuongtrinh.Name = chuongTrinhDto.Name;
-            chuongtrinh.Content = chuongTrinhDto.Content;
-            chuongtrinh.TypeInOff = chuongTrinhDto.TypeInOff;
-            chuongtrinh.Price = chuongTrinhDto.Price;
-            chuongtrinh.TypeProgram = chuongTrinhDto.TypeProgram;
-            chuongtrinh.Arrange = chuongTrinhDto.Arrange;
-
+            _mapper.Map(chuongTrinhDto, chuongtrinh);
             _context.ChuongTrinhs.Update(chuongtrinh);
             await _context.SaveChangesAsync();
             return chuongtrinh;
@@ -271,16 +190,12 @@ namespace HueFestivalAPI.Services
                 return null;
             }
 
-            if(details.IdChuongTrinh != idchuongtrinh)
+            if (details.IdChuongTrinh != idchuongtrinh)
             {
                 return null;
             }
 
-            details.Time = TimeSpan.Parse(detailsDto.Time);
-            details.StartDate = DateTime.Parse(detailsDto.StartDate);
-            details.EndDate = DateTime.Parse(detailsDto.EndDate);
-            details.IdDiaDiem = detailsDto.IdDiaDiem;
-            details.IdNhom = detailsDto.IdNhom;
+            details = _mapper.Map(detailsDto, details);
 
             _context.ChuongTrinhDetails.Update(details);
             await _context.SaveChangesAsync();

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using HueFestivalAPI.DTO;
 using HueFestivalAPI.Models;
+using HueFestivalAPI.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -14,31 +15,25 @@ namespace HueFestivalAPI.Services
     {
         private readonly HueFestivalContext _context;
         private readonly IConfiguration _configuration;
+        private readonly IMapper _mapper;
 
-        public AccountService(HueFestivalContext context, IConfiguration configuration)
+        public AccountService(HueFestivalContext context, IConfiguration configuration, IMapper mapper)
         {
             _context = context;
             _configuration = configuration;
+            _mapper = mapper;
         }
 
         public async Task<Account> AddAccountAsync(AddAccountDTO accountDto)
         {
-            var account = new Account
-            {
-                FullName = accountDto.FullName,
-                Email = accountDto.Email,
-                Password = BCrypt.Net.BCrypt.HashPassword(accountDto.Password),
-                PhoneNumber = accountDto.PhoneNumber,
-                Role = "User", 
-                Status = true,
-                IdQuyen = 3,
-            };
+            var account = _mapper.Map<Account>(accountDto);
 
             await _context.Account.AddAsync(account);
             await _context.SaveChangesAsync();
 
             return account;
         }
+
 
         public async Task<string> LoginAsync(LoginDTO loginDto)
         {
@@ -125,17 +120,8 @@ namespace HueFestivalAPI.Services
 
         public async Task<List<AccountDTO>> GetAllAccountAsync()
         {
-            var accounts = await _context.Account
-               .ToListAsync();
-            return accounts.Select(c => new AccountDTO
-            {
-                id = c.IdAccount,
-                fullname = c.FullName,
-                email = c.Email,
-                phonenumber = c.PhoneNumber,
-                role = c.Role,
-                status = c.Status
-            }).ToList();
+            var accounts = await _context.Account.ToListAsync();
+            return _mapper.Map<List<AccountDTO>>(accounts);
         }
 
         public async Task<Account> ChangePasswordAsync(ChangePasswordDTO accountDto, int id)
@@ -251,16 +237,8 @@ namespace HueFestivalAPI.Services
                 .Include(c => c.PhanQuyenChucNangs)
                     .ThenInclude(c => c.ChucNang)
                 .ToListAsync();
-            return quyens.Select(c => new QuyenDTO
-            {
-                id = c.IdQuyen,
-                quyen_name = c.Name,
-                chucnang_list = c.PhanQuyenChucNangs.Select(d => new PhanQuyenChucNangDTO
-                {
-                    id = d.IdChucNang,
-                    chucnang_name = d.ChucNang.Name
-                }).ToList()
-            }).ToList();
+
+            return _mapper.Map<List<QuyenDTO>>(quyens);
         }
 
         public async Task DeleteQuyenAsync(int id)

@@ -1,7 +1,7 @@
 ﻿using HueFestivalAPI.DTO;
 using HueFestivalAPI.Models;
 
-namespace HueFestivalAPI.Services
+namespace HueFestivalAPI.Services.Interfaces
 {
     public interface IDiaDiemService
     {

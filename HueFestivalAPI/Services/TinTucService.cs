@@ -4,6 +4,7 @@ using HueFestivalAPI.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Principal;
 using System;
+using HueFestivalAPI.Services.Interfaces;
 
 namespace HueFestivalAPI.Services
 {
@@ -20,84 +21,27 @@ namespace HueFestivalAPI.Services
 
         public async Task<List<TinTucDTO>> GetAllTinTucAsync()
         {
-            var tintucs = await _context.TinTucs
-                .ToListAsync();
-            return tintucs.Select(t => new TinTucDTO
-            {
-                id = t.IdTinTuc,
-                title = t.Title,
-                pathimage = t.PathImage,
-                summary = t.Summary,
-                postdate = t.PostDate,
-                changedate = t.ChangeDate
-            }).ToList();
+            var tintucs = await _context.TinTucs.ToListAsync();
+            var tintucDtos = _mapper.Map<List<TinTucDTO>>(tintucs);
+            return tintucDtos;
         }
 
         public async Task<ChiTietTinTucDTO> GetTinTucByIdAsync(int id)
         {
-            var tintuc = await _context.TinTucs
-            .FirstOrDefaultAsync(t => t.IdTinTuc == id);
-
+            var tintuc = await _context.TinTucs.FirstOrDefaultAsync(t => t.IdTinTuc == id);
             if (tintuc == null)
             {
                 return null;
             }
-
-            var tintucDto = new ChiTietTinTucDTO
-            {
-                id = tintuc.IdTinTuc,
-                typeid = tintuc.TypeId,
-                other_typeid = tintuc.OtherTypeId,
-                title = tintuc.Title,
-                url = tintuc.Url,
-                keywords = tintuc.Keywords,
-                summary = tintuc.Summary,
-                content = tintuc.Content,
-                pathfile = tintuc.PathFile,
-                pathimage = tintuc.PathImage,
-                video = tintuc.Video,
-                comment = tintuc.Comment,
-                postdate = tintuc.PostDate,
-                changedate = tintuc.ChangeDate,
-                approved = tintuc.Approved,
-                lang = "vn",
-                author = "",
-                isnew = tintuc.IsNew,
-                isfocus = tintuc.IsFocus,
-                ishome = tintuc.IsHome,
-                view = tintuc.View,
-                arrange = tintuc.Arrange,
-                latitude = tintuc.Latitude,
-                longtitude = tintuc.Longtitude
-            };
-
-            return tintucDto;
+            return _mapper.Map<ChiTietTinTucDTO>(tintuc);
         }
 
         public async Task<TinTuc> AddTinTucAsync(AddTinTucDTO tinTucDto)
         {
-            var tintuc = new TinTuc
-            {
-                TypeId = tinTucDto.TypeId,
-                OtherTypeId = 0,
-                Title = tinTucDto.Title,
-                Summary = tinTucDto.Summary,
-                Content = tinTucDto.Content,
-                PathImage = tinTucDto.PathImage,
-                PostDate = DateTime.Now,
-                ChangeDate = DateTime.Now,
-                Approved = tinTucDto.Approved,
-                View = 0,
-                Arrange = tinTucDto.Arrange,
-                Latitude = tinTucDto.Latitude,
-                Longtitude = tinTucDto.Longtitude,
-                IdAccount = 4
-            };
-
-            await _context.TinTucs.AddAsync(tintuc);
+            var tinTuc = _mapper.Map<TinTuc>(tinTucDto);
+            await _context.TinTucs.AddAsync(tinTuc);
             await _context.SaveChangesAsync();
-
-            return tintuc;
+            return tinTuc;
         }
 
         public async Task<TinTuc> UpdateTinTucAsync(AddTinTucDTO tinTucDto, int id)
@@ -108,25 +52,12 @@ namespace HueFestivalAPI.Services
             {
                 return null;
             }
-
-            tintuc.TypeId = tinTucDto.TypeId;
-            tintuc.OtherTypeId = 0;
-            tintuc.Title = tinTucDto.Title;
-            tintuc.Summary = tinTucDto.Summary;
-            tintuc.Content = tinTucDto.Content;
-            tintuc.PathImage = tinTucDto.PathImage;
-            tintuc.PostDate = DateTime.Now;
-            tintuc.ChangeDate = DateTime.Now;
-            tintuc.Approved = tinTucDto.Approved;
-            tintuc.Arrange = tinTucDto.Arrange;
-            tintuc.Latitude = tinTucDto.Latitude;
-            tintuc.Longtitude = tinTucDto.Longtitude;
-            tintuc.IdAccount = 4;
-
+            _mapper.Map(tinTucDto, tintuc);
             _context.TinTucs.Update(tintuc);
             await _context.SaveChangesAsync();
             return tintuc;
         }
+
 
         public async Task DeleteTinTucAsync(int id)
         {

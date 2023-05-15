@@ -1,6 +1,6 @@
 ﻿using HueFestivalAPI.DTO;
 using HueFestivalAPI.Models;
-using HueFestivalAPI.Services;
+using HueFestivalAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,6 +16,7 @@ namespace HueFestivalAPI.Controllers
             _accountService = accountService;
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet("account")]
         public async Task<IActionResult> GetAllAccount()
         {
@@ -29,7 +30,7 @@ namespace HueFestivalAPI.Controllers
             }
         }
 
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPost("register")]
         public async Task<IActionResult> Register(AddAccountDTO accountDto)
         {
@@ -55,7 +56,7 @@ namespace HueFestivalAPI.Controllers
             return Ok(result);
         }
 
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPut("adminUpdateAccount/{id}")]
         public async Task<IActionResult> AdminUpdateAccount(AdminUpdateAccountDTO accountDto, int id)
         {
@@ -70,6 +71,7 @@ namespace HueFestivalAPI.Controllers
             }
         }
 
+        [Authorize(Roles = "User")]
         [HttpPut("userUpdateAccount/{id}")]
         public async Task<ActionResult<Account>> UserUpdateAccount(UserUpdateAccountDTO accountDto, int id)
         {
@@ -84,7 +86,7 @@ namespace HueFestivalAPI.Controllers
             }
         }
 
-        //[Authorize(Roles = "User")]
+        [Authorize(Roles = "User")]
         [HttpPut("changePassword/{id}")]
         public async Task<IActionResult> ChangePassword(ChangePasswordDTO accountDto, int id)
         {
@@ -99,6 +101,7 @@ namespace HueFestivalAPI.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet("chucnang")]
         public async Task<IActionResult> GetAllChucNang()
         {
@@ -112,7 +115,7 @@ namespace HueFestivalAPI.Controllers
             }
         }
 
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPost("chucnang")]
         public async Task<IActionResult> AddChucNang(AddChucNangDTO chucNangDto)
         {
@@ -127,6 +130,7 @@ namespace HueFestivalAPI.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("updateChucNang/{id}")]
         public async Task<ActionResult<Account>> UpdateChucNang(AddChucNangDTO chucNangDto, int id)
         {
@@ -141,6 +145,7 @@ namespace HueFestivalAPI.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("deleteChucNang/{id}")]
         public async Task<ActionResult> DeleteChucNang(int id)
         {
@@ -148,6 +153,7 @@ namespace HueFestivalAPI.Controllers
             return Ok();
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet("quyen")]
         public async Task<IActionResult> GetAllQuyen()
         {
@@ -161,6 +167,7 @@ namespace HueFestivalAPI.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("quyen")]
         public async Task<IActionResult> AddQuyen(AddQuyenDTO quyenDto)
         {
@@ -169,6 +176,7 @@ namespace HueFestivalAPI.Controllers
             return Ok(quyen);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("deleteQuyen/{id}")]
         public async Task<ActionResult> DeleteQuyen(int id)
         {
