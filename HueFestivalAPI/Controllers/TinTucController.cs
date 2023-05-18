@@ -1,4 +1,4 @@
-﻿using HueFestivalAPI.DTO;
+﻿using HueFestivalAPI.DTO.TinTuc;
 using HueFestivalAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using HueFestivalAPI.DTO;
+using HueFestivalAPI.DTO.MenuHoTro;
 using HueFestivalAPI.Models;
 using HueFestivalAPI.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;

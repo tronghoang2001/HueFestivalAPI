@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
-using HueFestivalAPI.DTO;
 using HueFestivalAPI.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Principal;
 using System;
 using HueFestivalAPI.Services.Interfaces;
+using HueFestivalAPI.DTO.TinTuc;
 
 namespace HueFestivalAPI.Services
 {

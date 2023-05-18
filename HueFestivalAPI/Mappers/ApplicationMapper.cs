@@ -1,5 +1,14 @@
 ﻿using AutoMapper;
-using HueFestivalAPI.DTO;
+using HueFestivalAPI.DTO.Account;
+using HueFestivalAPI.DTO.ChuongTrinh;
+using HueFestivalAPI.DTO.DiaDiem;
+using HueFestivalAPI.DTO.DiemBanVe;
+using HueFestivalAPI.DTO.Doan;
+using HueFestivalAPI.DTO.LoaiVe;
+using HueFestivalAPI.DTO.MenuHoTro;
+using HueFestivalAPI.DTO.Nhom;
+using HueFestivalAPI.DTO.TinTuc;
+using HueFestivalAPI.DTO.Ve;
 using HueFestivalAPI.Models;
 
 namespace HueFestivalAPI.Helpers
@@ -121,6 +130,14 @@ namespace HueFestivalAPI.Helpers
             CreateMap<ChiTietDiemBanVe, ChiTietDiemBanVeDTO>()
                 .ForMember(dest => dest.id, opt => opt.MapFrom(src => src.IdChiTietDiemBanVe))
                 .ForMember(dest => dest.chuongtrinh_name, opt => opt.MapFrom(src => src.Ve.ChuongTrinhDetails.ChuongTrinh.Name));
+
+            CreateMap<NhomChuongTrinh, NhomChuongTrinhDTO>()
+                .ForMember(dest => dest.id, opt => opt.MapFrom(src => src.IdNhom));
+            CreateMap<AddNhomDTO, NhomChuongTrinh>();
+
+            CreateMap<DoanChuongTrinh, DoanChuongTrinhDTO>()
+                .ForMember(dest => dest.id, opt => opt.MapFrom(src => src.IdDoan));
+            CreateMap<AddDoanDTO, DoanChuongTrinh>();
         }
     }
 }

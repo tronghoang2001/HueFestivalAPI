@@ -1,4 +1,4 @@
-﻿using HueFestivalAPI.DTO;
+﻿using HueFestivalAPI.DTO.ChuongTrinh;
 using HueFestivalAPI.Models;
 using HueFestivalAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;

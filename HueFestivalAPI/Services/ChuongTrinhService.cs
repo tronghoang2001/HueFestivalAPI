@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using HueFestivalAPI.DTO;
+using HueFestivalAPI.DTO.ChuongTrinh;
 using HueFestivalAPI.Models;
 using HueFestivalAPI.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +19,7 @@ namespace HueFestivalAPI.Services
             _mapper = mapper;
         }
 
-        public async Task<List<ChuongTrinhDTO>> GetAllChuongTrinhAsync()
+        public async Task<object> GetAllChuongTrinhAsync()
         {
             var chuongtrinhs = await _context.ChuongTrinhs
                 .Include(c => c.ChuongTrinhDetails)
@@ -27,8 +27,16 @@ namespace HueFestivalAPI.Services
                 .Include(c => c.ChuongTrinhDetails)
                     .ThenInclude(c => c.NhomChuongTrinh)
                 .Include(c => c.ChuongTrinhImages).ToListAsync();
+
             var chuongtrinhDTOs = _mapper.Map<List<ChuongTrinhDTO>>(chuongtrinhs);
-            return chuongtrinhDTOs;
+
+            var result = new
+            {
+                type = 1,
+                list = chuongtrinhDTOs
+            };
+
+            return result;
         }
 
         public async Task<ChuongTrinhDTO> GetChuongTrinhByIdAsync(int idChuongTrinh)

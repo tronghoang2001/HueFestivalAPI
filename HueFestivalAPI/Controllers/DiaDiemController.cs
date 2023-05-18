@@ -1,4 +1,4 @@
-﻿using HueFestivalAPI.DTO;
+﻿using HueFestivalAPI.DTO.DiaDiem;
 using HueFestivalAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

@@ -1,4 +1,4 @@
-﻿using HueFestivalAPI.DTO;
+﻿using HueFestivalAPI.DTO.Account;
 using HueFestivalAPI.Models;
 using HueFestivalAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -18,7 +18,7 @@ namespace HueFestivalAPI.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpGet("account")]
-        public async Task<IActionResult> GetAllAccount()
+        public async Task<IActionResult> GetAllAccounts()
         {
             try
             {
