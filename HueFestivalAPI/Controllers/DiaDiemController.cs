@@ -29,11 +29,10 @@ namespace HueFestivalAPI.Controllers
 
         }
 
-        [HttpGet("submenu/{idSubMenu}")]
-        public async Task<ActionResult<List<DiaDiemDTO>>> GetDiaDiemByIdSubMenu(int idSubMenu)
+        [HttpGet("getDiaDiemBySubMenu")]
+        public async Task<ActionResult<List<DiaDiemDTO>>> GetDiaDiemByIdSubMenu(int idSubMenu, int pageIndex, int pageSize)
         {
-            var diaDiems = await _diaDiemService.GetDiaDiemByIdSubMenuAsync(idSubMenu);
-
+            var diaDiems = await _diaDiemService.GetDiaDiemByIdSubMenuAsync(idSubMenu, pageIndex, pageSize);
             return diaDiems;
         }
 
@@ -46,11 +45,11 @@ namespace HueFestivalAPI.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost("diaDiemMenu")]
-        public async Task<IActionResult> AddDiaDiemMenu(AddDiaDiemMenuDTO diaDiemMenuDto)
+        public async Task<IActionResult> AddDiaDiemMenu([FromForm] AddDiaDiemMenuDTO diaDiemMenuDto, IFormFile iconFile)
         {
             try
             {
-                var diaDiemMenu = await _diaDiemService.AddDiaDiemMenuAsync(diaDiemMenuDto);
+                var diaDiemMenu = await _diaDiemService.AddDiaDiemMenuAsync(diaDiemMenuDto, iconFile);
                 return Ok(diaDiemMenu);
             }
             catch (Exception ex)
@@ -61,11 +60,11 @@ namespace HueFestivalAPI.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost("diaDiemSubMenu")]
-        public async Task<IActionResult> AddDiaDiemSubMenu(AddDiaDiemSubMenuDTO diaDiemSubMenuDto)
+        public async Task<IActionResult> AddDiaDiemSubMenu([FromForm] AddDiaDiemSubMenuDTO diaDiemSubMenuDto, IFormFile iconFile)
         {
             try
             {
-                var diaDiemSubMenu = await _diaDiemService.AddDiaDiemSubMenuAsync(diaDiemSubMenuDto);
+                var diaDiemSubMenu = await _diaDiemService.AddDiaDiemSubMenuAsync(diaDiemSubMenuDto, iconFile);
                 return Ok(diaDiemSubMenu);
             }
             catch (Exception ex)
@@ -76,11 +75,11 @@ namespace HueFestivalAPI.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost("diaDiem")]
-        public async Task<IActionResult> AddDiaDiem(AddDiaDiemDTO diaDiemDto)
+        public async Task<IActionResult> AddDiaDiem([FromForm] AddDiaDiemDTO diaDiemDto, IFormFile imageFile)
         {
             try
             {
-                var diaDiem = await _diaDiemService.AddDiaDiemAsync(diaDiemDto);
+                var diaDiem = await _diaDiemService.AddDiaDiemAsync(diaDiemDto, imageFile);
                 return Ok(diaDiem);
             }
             catch (Exception ex)
@@ -91,11 +90,11 @@ namespace HueFestivalAPI.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPut("updateDiaDiemMenu/{id}")]
-        public async Task<IActionResult> UpdateDiaDiemMenu(AddDiaDiemMenuDTO diaDiemMenuDto, int id)
+        public async Task<IActionResult> UpdateDiaDiemMenu([FromForm] AddDiaDiemMenuDTO diaDiemMenuDto, int id, IFormFile iconFile)
         {
             try
             {
-                var diaDiemMenu = await _diaDiemService.UpdateDiaDiemMenuAsync(diaDiemMenuDto, id);
+                var diaDiemMenu = await _diaDiemService.UpdateDiaDiemMenuAsync(diaDiemMenuDto, id, iconFile);
                 return Ok(diaDiemMenu);
             }
             catch (Exception ex)
@@ -106,11 +105,11 @@ namespace HueFestivalAPI.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPut("updateDiaDiemSubMenu/{id}")]
-        public async Task<IActionResult> UpdateDiaDiemSubMenu(AddDiaDiemSubMenuDTO diaDiemSubMenuDto, int id)
+        public async Task<IActionResult> UpdateDiaDiemSubMenu([FromForm] AddDiaDiemSubMenuDTO diaDiemSubMenuDto, int id, IFormFile iconFile)
         {
             try
             {
-                var diaDiemSubmenu = await _diaDiemService.UpdateDiaDiemSubMenuAsync(diaDiemSubMenuDto, id);
+                var diaDiemSubmenu = await _diaDiemService.UpdateDiaDiemSubMenuAsync(diaDiemSubMenuDto, id, iconFile);
                 return Ok(diaDiemSubmenu);
             }
             catch (Exception ex)
@@ -121,11 +120,11 @@ namespace HueFestivalAPI.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPut("updateDiaDiem/{id}")]
-        public async Task<IActionResult> UpdateDiaDiem(AddDiaDiemDTO diaDiemDto, int id)
+        public async Task<IActionResult> UpdateDiaDiem([FromForm] AddDiaDiemDTO diaDiemDto, int id, IFormFile imageFile)
         {
             try
             {
-                var diaDiem = await _diaDiemService.UpdateDiaDiemAsync(diaDiemDto, id);
+                var diaDiem = await _diaDiemService.UpdateDiaDiemAsync(diaDiemDto, id, imageFile);
                 return Ok(diaDiem);
             }
             catch (Exception ex)

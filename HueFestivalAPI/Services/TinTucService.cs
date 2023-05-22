@@ -5,6 +5,7 @@ using System.Security.Principal;
 using System;
 using HueFestivalAPI.Services.Interfaces;
 using HueFestivalAPI.DTO.TinTuc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace HueFestivalAPI.Services
 {
@@ -19,9 +20,12 @@ namespace HueFestivalAPI.Services
             _mapper = mapper;
         }
 
-        public async Task<List<TinTucDTO>> GetAllTinTucAsync()
+        public async Task<List<TinTucDTO>> GetAllTinTucAsync(int pageIndex, int pageSize)
         {
-            var tintucs = await _context.TinTucs.ToListAsync();
+            var tintucs = await _context.TinTucs
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
             var tintucDtos = _mapper.Map<List<TinTucDTO>>(tintucs);
             return tintucDtos;
         }
@@ -36,21 +40,44 @@ namespace HueFestivalAPI.Services
             return _mapper.Map<ChiTietTinTucDTO>(tintuc);
         }
 
-        public async Task<TinTuc> AddTinTucAsync(AddTinTucDTO tinTucDto)
+        public async Task<TinTuc> AddTinTucAsync(AddTinTucDTO tinTucDto, IFormFile imageFile)
         {
             var tinTuc = _mapper.Map<TinTuc>(tinTucDto);
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
+                var filePath = Path.Combine("Uploads\\TinTucImage", fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await imageFile.CopyToAsync(stream);
+                }
+
+                tinTuc.PathImage = fileName;
+            }
             await _context.TinTucs.AddAsync(tinTuc);
             await _context.SaveChangesAsync();
             return tinTuc;
         }
 
-        public async Task<TinTuc> UpdateTinTucAsync(AddTinTucDTO tinTucDto, int id)
+        public async Task<TinTuc> UpdateTinTucAsync(AddTinTucDTO tinTucDto, int id, IFormFile imageFile)
         {
             var tintuc = await _context.TinTucs.FindAsync(id);
-
             if (tintuc == null)
             {
                 return null;
+            }
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
+                var filePath = Path.Combine("Uploads\\TinTucImage", fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await imageFile.CopyToAsync(stream);
+                }
+
+                tintuc.PathImage = fileName;
             }
             _mapper.Map(tinTucDto, tintuc);
             _context.TinTucs.Update(tintuc);

@@ -2,7 +2,6 @@
 using HueFestivalAPI.DTO.Account;
 using HueFestivalAPI.DTO.ChuongTrinh;
 using HueFestivalAPI.DTO.DiaDiem;
-using HueFestivalAPI.DTO.DiemBanVe;
 using HueFestivalAPI.DTO.Doan;
 using HueFestivalAPI.DTO.LoaiVe;
 using HueFestivalAPI.DTO.MenuHoTro;
@@ -36,16 +35,7 @@ namespace HueFestivalAPI.Helpers
                 .ForMember(dest => dest.arrange, opt => opt.MapFrom(src => src.Arrange))
                 .ForMember(dest => dest.details_list, opt => opt.MapFrom(src => src.ChuongTrinhDetails))
                 .ForMember(dest => dest.pathimage_list, opt => opt.MapFrom(src => src.ChuongTrinhImages.Select(i => i.PathImage)));
-            CreateMap<AddChuongTrinhDTO, ChuongTrinh>()
-                .ForMember(dest => dest.ChuongTrinhImages, opt => opt.MapFrom(src => src.Images.Select(x => new ChuongTrinhImage { PathImage = x.pathimage })))
-                .ForMember(dest => dest.ChuongTrinhDetails, opt => opt.MapFrom(src => src.Details.Select(x => new ChuongTrinhDetails
-                {
-                    Time = TimeSpan.Parse(x.Time),
-                    StartDate = DateTime.Parse(x.StartDate),
-                    EndDate = DateTime.Parse(x.EndDate),
-                    IdDiaDiem = x.IdDiaDiem,
-                    IdNhom = x.IdNhom
-                })));
+            CreateMap<AddChuongTrinhDTO, ChuongTrinh>();
             CreateMap<UpdateChuongTrinhDTO, ChuongTrinh>();
             CreateMap<UpdateChuongTrinhDetailsDTO, ChuongTrinhDetails>();
 
@@ -124,12 +114,6 @@ namespace HueFestivalAPI.Helpers
                 .ForMember(dest => dest.loaive, opt => opt.MapFrom(src => src.LoaiVe.Name))
                 .ForMember(dest => dest.chuongtrinh_name, opt => opt.MapFrom(src => src.ChuongTrinhDetails.ChuongTrinh.Name))
                 .ForMember(dest => dest.diadiem_name, opt => opt.MapFrom(src => src.ChuongTrinhDetails.DiaDiem.Title));
-            CreateMap<DiemBanVe, DiemBanVeDTO>()
-                .ForMember(dest => dest.id, opt => opt.MapFrom(src => src.IdDiemBanVe))
-                .ForMember(dest => dest.details_list, opt => opt.MapFrom(src => src.ChiTietDiemBanVes));
-            CreateMap<ChiTietDiemBanVe, ChiTietDiemBanVeDTO>()
-                .ForMember(dest => dest.id, opt => opt.MapFrom(src => src.IdChiTietDiemBanVe))
-                .ForMember(dest => dest.chuongtrinh_name, opt => opt.MapFrom(src => src.Ve.ChuongTrinhDetails.ChuongTrinh.Name));
 
             CreateMap<NhomChuongTrinh, NhomChuongTrinhDTO>()
                 .ForMember(dest => dest.id, opt => opt.MapFrom(src => src.IdNhom));

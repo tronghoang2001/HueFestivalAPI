@@ -3,6 +3,7 @@ using HueFestivalAPI.DTO.ChuongTrinh;
 using HueFestivalAPI.Models;
 using HueFestivalAPI.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System.Globalization;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -115,13 +116,53 @@ namespace HueFestivalAPI.Services
             return chuongTrinhTheoNgayDTOs;
         }
 
-        public async Task<ChuongTrinh> AddChuongTrinhAsync(AddChuongTrinhDTO chuongTrinhDto)
+        public async Task<ChuongTrinh> AddChuongTrinhAsync(AddChuongTrinhDTO chuongTrinhDto, List<IFormFile> imageFiles)
         {
             var program = _mapper.Map<ChuongTrinh>(chuongTrinhDto);
 
             try
             {
                 _context.ChuongTrinhs.Add(program);
+                await _context.SaveChangesAsync();
+
+                var chuongTrinhImages = new List<ChuongTrinhImage>();
+
+                foreach (var imageFile in imageFiles)
+                {
+                    if (imageFile != null && imageFile.Length > 0)
+                    {
+                        var fileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
+                        var filePath = Path.Combine("Uploads\\ChuongTrinhImage", fileName);
+
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await imageFile.CopyToAsync(stream);
+                        }
+
+                        var chuongTrinhImage = new ChuongTrinhImage
+                        {
+                            PathImage = fileName,
+                            IdChuongTrinh = program.IdChuongTrinh 
+                        };
+
+                        chuongTrinhImages.Add(chuongTrinhImage);
+                    }
+                }
+
+                program.ChuongTrinhImages = chuongTrinhImages;
+
+                await _context.SaveChangesAsync();
+
+                var chuongTrinhDetails = new ChuongTrinhDetails
+                {
+                    Time = TimeSpan.Parse(chuongTrinhDto.Time),
+                    StartDate = DateTime.Parse(chuongTrinhDto.StartDate),
+                    EndDate = DateTime.Parse(chuongTrinhDto.EndDate),
+                    IdDiaDiem = chuongTrinhDto.IdDiaDiem,
+                    IdNhom = chuongTrinhDto.IdNhom,
+                    IdChuongTrinh = program.IdChuongTrinh 
+                };
+                _context.ChuongTrinhDetails.Add(chuongTrinhDetails); 
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateException ex)
@@ -138,7 +179,7 @@ namespace HueFestivalAPI.Services
             return program;
         }
 
-        public async Task<ChuongTrinhImage> UpdateImageChuongTrinhAsync(ChuongTrinhImageDTO imageDto, int idchuongtrinh, int idimage)
+        public async Task<ChuongTrinhImage> UpdateImageChuongTrinhAsync(int idchuongtrinh, int idimage, IFormFile imageFile)
         {
             var image = await _context.ChuongTrinhImages.FindAsync(idimage);
 
@@ -147,12 +188,23 @@ namespace HueFestivalAPI.Services
                 return null;
             }
 
-            if(image.IdChuongTrinh != idchuongtrinh)
+            if (image.IdChuongTrinh != idchuongtrinh)
             {
                 return null;
             }
 
-            image.PathImage = imageDto.pathimage;
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
+                var filePath = Path.Combine("Uploads\\ChuongTrinhImage", fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await imageFile.CopyToAsync(stream);
+                }
+
+                image.PathImage = fileName;
+            }
 
             _context.ChuongTrinhImages.Update(image);
             await _context.SaveChangesAsync();

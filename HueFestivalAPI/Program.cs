@@ -59,7 +59,6 @@ builder.Services.AddScoped<ITinTucService, TinTucService>();
 builder.Services.AddScoped<IMenuHoTroService, MenuHoTroService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IVeService, VeService>();
-builder.Services.AddScoped<IDiemBanVeService, DiemBanVeService>();
 builder.Services.AddScoped<ILoaiVeService, LoaiVeService>();
 builder.Services.AddScoped<INhomService, NhomService>();
 builder.Services.AddScoped<IDoanService, DoanService>();

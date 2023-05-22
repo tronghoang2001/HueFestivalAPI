@@ -12,9 +12,6 @@ namespace HueFestivalAPI.DTO.TinTuc
         public string Summary { get; set; }
         [Required]
         public string Content { get; set; }
-        [Required]
-        [MaxLength(200)]
-        public string PathImage { get; set; }
         public DateTime PostDate { get; set; }
         public DateTime ChangeDate { get; set; }
         public int Approved { get; set; }

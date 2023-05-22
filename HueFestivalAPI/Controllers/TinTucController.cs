@@ -17,11 +17,11 @@ namespace HueFestivalAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllTinTuc()
+        public async Task<IActionResult> GetAllTinTuc(int pageIndex, int pageSize)
         {
             try
             {
-                return Ok(await _tinTucService.GetAllTinTucAsync());
+                return Ok(await _tinTucService.GetAllTinTucAsync(pageIndex, pageSize));
             }
             catch
             {
@@ -39,11 +39,11 @@ namespace HueFestivalAPI.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<IActionResult> AddTinTuc(AddTinTucDTO tinTucDto)
+        public async Task<IActionResult> AddTinTuc([FromForm] AddTinTucDTO tinTucDto, IFormFile imageFile)
         {
             try
             {
-                var tintuc = await _tinTucService.AddTinTucAsync(tinTucDto);
+                var tintuc = await _tinTucService.AddTinTucAsync(tinTucDto, imageFile);
                 return Ok(tintuc);
             }
             catch (Exception ex)
@@ -54,11 +54,11 @@ namespace HueFestivalAPI.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateTinTuc(AddTinTucDTO tinTucDto, int id)
+        public async Task<IActionResult> UpdateTinTuc([FromForm] AddTinTucDTO tinTucDto, int id, IFormFile imageFile)
         {
             try
             {
-                var tintuc = await _tinTucService.UpdateTinTucAsync(tinTucDto, id);
+                var tintuc = await _tinTucService.UpdateTinTucAsync(tinTucDto, id, imageFile);
                 return Ok(tintuc);
             }
             catch (Exception ex)

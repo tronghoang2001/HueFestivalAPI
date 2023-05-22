@@ -11,9 +11,6 @@ namespace HueFestivalAPI.DTO.DiaDiem
         public string Summary { get; set; }
         [Required]
         public string Content { get; set; }
-        [Required]
-        [MaxLength(200)]
-        public string PathImage { get; set; }
         public double Longtitude { get; set; }
         public double Latitude { get; set; }
         public int TypeData { get; set; }

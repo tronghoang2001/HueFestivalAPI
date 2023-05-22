@@ -21,9 +21,7 @@ namespace HueFestivalAPI.Models
         public DbSet<NhomChuongTrinh> NhomChuongTrinhs { get; set; }
         public DbSet<TinTuc> TinTucs { get; set; }
         public DbSet<Checkin> Checkins { get; set; }
-        public DbSet<ChiTietDiemBanVe> ChiTietDiemBanVes { get; set; }
         public DbSet<ChucNang> ChucNangs { get; set; }
-        public DbSet<DiemBanVe> DiemBanVes { get; set; }
         public DbSet<ThongTinDatVe> HoaDons { get; set; }
         public DbSet<LoaiVe> LoaiVes { get; set; }
         public DbSet<PhanQuyenChucNang> PhanQuyenChucNangs { get; set; }
@@ -68,9 +66,6 @@ namespace HueFestivalAPI.Models
             modelBuilder.Entity<LoaiVe>()
                 .HasIndex(c => c.Name)
                 .IsUnique();
-            modelBuilder.Entity<DiemBanVe>()
-                .HasIndex(c => c.Name)
-                .IsUnique();
             modelBuilder.Entity<ChuongTrinhDetails>()
                 .HasOne(c => c.ChuongTrinh)
                 .WithMany(ct => ct.ChuongTrinhDetails)
@@ -111,14 +106,6 @@ namespace HueFestivalAPI.Models
                 .HasOne(c => c.ThongTinDatVe)
                 .WithMany(ct => ct.Checkins)
                 .HasForeignKey(c => c.IdThongTin);
-            modelBuilder.Entity<ChiTietDiemBanVe>()
-                .HasOne(c => c.DiemBanVe)
-                .WithMany(ct => ct.ChiTietDiemBanVes)
-                .HasForeignKey(c => c.IdDiemBanVe);
-            modelBuilder.Entity<ChiTietDiemBanVe>()
-                .HasOne(c => c.Ve)
-                .WithMany(ct => ct.ChiTietDiemBanVes)
-                .HasForeignKey(c => c.IdVe);
             modelBuilder.Entity<ThongTinDatVe>()
                 .HasOne(c => c.Ve)
                 .WithMany(ct => ct.ThongTinDatVes)

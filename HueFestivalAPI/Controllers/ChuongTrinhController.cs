@@ -57,12 +57,12 @@ namespace HueFestivalAPI.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost("chuongtrinh")]
-        public async Task<IActionResult> AddChuongTrinh(AddChuongTrinhDTO chuongTrinhDto)
+        public async Task<IActionResult> AddChuongTrinh([FromForm] AddChuongTrinhDTO chuongTrinhDto, List<IFormFile> imageFiles)
         {
             try
             {
-                var chuongtrinh = await _chuongTrinhService.AddChuongTrinhAsync(chuongTrinhDto);
-                return Ok(chuongtrinh);
+                var chuongTrinh = await _chuongTrinhService.AddChuongTrinhAsync(chuongTrinhDto, imageFiles);
+                return Ok(chuongTrinh);
             }
             catch (Exception ex)
             {
@@ -70,13 +70,14 @@ namespace HueFestivalAPI.Controllers
             }
         }
 
+
         [Authorize(Roles = "Admin")]
         [HttpPut("{idchuongtrinh}/images/{idimage}")]
-        public async Task<IActionResult> UpdateChuongTrinhImage(ChuongTrinhImageDTO imageDto, int idchuongtrinh, int idimage)
+        public async Task<IActionResult> UpdateChuongTrinhImage(int idchuongtrinh, int idimage, IFormFile imageFile)
         {
             try
             {
-                var image = await _chuongTrinhService.UpdateImageChuongTrinhAsync(imageDto, idchuongtrinh, idimage);
+                var image = await _chuongTrinhService.UpdateImageChuongTrinhAsync(idchuongtrinh, idimage, imageFile);
                 return Ok(image);
             }
             catch (Exception ex)
