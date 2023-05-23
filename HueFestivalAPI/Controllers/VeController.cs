@@ -38,5 +38,25 @@ namespace HueFestivalAPI.Controllers
 
             return Ok(ve);
         }
+
+        [HttpPost("DatVe")]
+        public IActionResult CreateThongTinDatVe(ThongTinDatVeDTO thongTinDatVeDTO)
+        {
+
+            var qrCodes = _veService.CreateThongTinDatVeAsync(thongTinDatVeDTO);
+
+            // Kiểm tra kết quả trả về
+            if (qrCodes.Count > 0)
+            {
+                // Thành công, trả về mã QRCode
+                return Ok(qrCodes);
+            }
+            else
+            {
+                // Số lượng vé không đủ
+                return BadRequest("Số lượng vé còn lại không đủ");
+            }
+        }
+
     }
 }

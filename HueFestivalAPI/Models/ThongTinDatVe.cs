@@ -25,5 +25,6 @@ namespace HueFestivalAPI.Models
         public int IdVe { get; set; }
         public Ve Ve { get; set; }
         public ICollection<Checkin> Checkins { get; set; }
+        public ICollection<KichHoatVe> KichHoatVes { get; set; }
     }
 }

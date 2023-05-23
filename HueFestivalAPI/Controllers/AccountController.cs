@@ -183,5 +183,29 @@ namespace HueFestivalAPI.Controllers
             await _accountService.DeleteQuyenAsync(id);
             return Ok();
         }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword(string email)
+        {
+            var isEmailSent = await _accountService.ForgotPassword(email);
+            if (!isEmailSent)
+            {
+                return StatusCode(500, "Failed to send password reset email.");
+            }
+
+            return Ok();
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword(ResetPasswordDTO resetPasswordDto, string email)
+        {
+            var isSuccess = await _accountService.ResetPassword(resetPasswordDto, email);
+            if (!isSuccess)
+            {
+                return BadRequest("Invalid password reset token.");
+            }
+
+            return Ok();
+        }
     }
 }

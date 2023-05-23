@@ -7,5 +7,6 @@ namespace HueFestivalAPI.Services.Interfaces
     {
         public Task<List<VeDTO>> GetAllVeAsync();
         public Task<Ve> PhatHanhVeAsync(AddVeDTO veDto, int id_details);
+        public List<string> CreateThongTinDatVeAsync(ThongTinDatVeDTO thongTinDatVeDTO);
     }
 }

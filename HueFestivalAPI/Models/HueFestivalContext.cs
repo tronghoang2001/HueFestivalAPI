@@ -27,6 +27,8 @@ namespace HueFestivalAPI.Models
         public DbSet<PhanQuyenChucNang> PhanQuyenChucNangs { get; set; }
         public DbSet<Quyen> Quyens { get; set; }
         public DbSet<Ve> Ves { get; set; }
+        public DbSet<KichHoatVe> KichHoatVes { get; set; }
+        public DbSet<ThongTinDatVe> ThongTinDatVes { get; set; }
         #endregion
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -130,6 +132,10 @@ namespace HueFestivalAPI.Models
                .HasOne(c => c.Quyen)
                .WithMany(ct => ct.Accounts)
                .HasForeignKey(c => c.IdQuyen);
+            modelBuilder.Entity<KichHoatVe>()
+               .HasOne(c => c.ThongTinDatVe)
+               .WithMany(ct => ct.KichHoatVes)
+               .HasForeignKey(c => c.IdThongTin);
         }
     }
 }

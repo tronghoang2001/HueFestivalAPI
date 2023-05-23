@@ -9,6 +9,8 @@ using HueFestivalAPI.DTO.Nhom;
 using HueFestivalAPI.DTO.TinTuc;
 using HueFestivalAPI.DTO.Ve;
 using HueFestivalAPI.Models;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace HueFestivalAPI.Helpers
 {
@@ -35,7 +37,20 @@ namespace HueFestivalAPI.Helpers
                 .ForMember(dest => dest.arrange, opt => opt.MapFrom(src => src.Arrange))
                 .ForMember(dest => dest.details_list, opt => opt.MapFrom(src => src.ChuongTrinhDetails))
                 .ForMember(dest => dest.pathimage_list, opt => opt.MapFrom(src => src.ChuongTrinhImages.Select(i => i.PathImage)));
-            CreateMap<AddChuongTrinhDTO, ChuongTrinh>();
+            CreateMap<AddChuongTrinhDTO, ChuongTrinh>()
+                .AfterMap((source, destination) =>
+                {
+                    using (MD5 md5 = MD5.Create())
+                    {
+                        byte[] hashBytes = md5.ComputeHash(Encoding.UTF8.GetBytes(destination.Name));
+                        StringBuilder sb = new StringBuilder();
+                        for (int i = 0; i < hashBytes.Length; i++)
+                        {
+                            sb.Append(hashBytes[i].ToString("x2"));
+                        }
+                        destination.Md5 = sb.ToString();
+                    }
+                });
             CreateMap<UpdateChuongTrinhDTO, ChuongTrinh>();
             CreateMap<UpdateChuongTrinhDetailsDTO, ChuongTrinhDetails>();
 

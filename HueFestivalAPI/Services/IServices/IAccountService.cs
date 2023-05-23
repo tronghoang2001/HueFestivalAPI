@@ -18,6 +18,7 @@ namespace HueFestivalAPI.Services.Interfaces
         public Task<List<QuyenDTO>> GetAllQuyenAsync();
         public Task<Quyen> AddQuyenAsync(AddQuyenDTO quyenDto);
         public Task DeleteQuyenAsync(int id);
-
+        public Task<bool> ForgotPassword(string email);
+        public Task<bool> ResetPassword(ResetPasswordDTO resetPasswordDto, string email);
     }
 }

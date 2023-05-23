@@ -2,11 +2,13 @@
 using HueFestivalAPI.DTO.Account;
 using HueFestivalAPI.Models;
 using HueFestivalAPI.Services.Interfaces;
+using MailKit.Net.Smtp;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using MimeKit;
+using NETCore.MailKit.Core;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Principal;
 using System.Text;
 
 namespace HueFestivalAPI.Services
@@ -16,12 +18,14 @@ namespace HueFestivalAPI.Services
         private readonly HueFestivalContext _context;
         private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public AccountService(HueFestivalContext context, IConfiguration configuration, IMapper mapper)
+        public AccountService(HueFestivalContext context, IConfiguration configuration, IMapper mapper, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _configuration = configuration;
             _mapper = mapper;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<Account> AddAccountAsync(AddAccountDTO accountDto)
@@ -253,6 +257,83 @@ namespace HueFestivalAPI.Services
                 _context.Quyens.Remove(quyen);
                 await _context.SaveChangesAsync();
             }
+        }
+
+        public async Task<bool> ForgotPassword(string email)
+        {
+            var user = await _context.Account.FirstOrDefaultAsync(a => a.Email == email);
+            if (user == null)
+            {
+                return false;
+            }
+
+            var token = GeneratePasswordResetToken();
+            user.ResetToken = token;
+            await _context.SaveChangesAsync();
+
+            return await SendPasswordResetEmailAsync(user.Email, token);
+        }
+
+        public async Task<bool> ResetPassword(ResetPasswordDTO resetPasswordDto, string email)
+        {
+            var user = await _context.Account.FirstOrDefaultAsync(a => a.Email == email);
+            if (user == null)
+            {
+                return false;
+            }
+            if (user.ResetToken != resetPasswordDto.ResetToken)
+            {
+                return false;
+            }
+            if (resetPasswordDto.NewPassword != resetPasswordDto.ConfirmPassword)
+            {
+                throw new Exception("Xác nhận mật khẩu không trùng khớp!");
+            }
+            user.Password = BCrypt.Net.BCrypt.HashPassword(resetPasswordDto.NewPassword);
+            user.ResetToken = null;
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+        private async Task<bool> SendPasswordResetEmailAsync(string email, string token)
+        {
+            try
+            {
+                var message = new MimeMessage();
+                message.From.Add(new MailboxAddress("Sender Name", "12a9nth@gmail.com"));
+                message.To.Add(new MailboxAddress(email, email)); // Đặt cùng địa chỉ email cho tên người nhận
+
+                message.Subject = "Password Reset";
+
+                var bodyBuilder = new BodyBuilder();
+                bodyBuilder.HtmlBody = $"<p>Mã xác nhận khôi phục mật khẩu của bạn: {token}</p>";
+
+                message.Body = bodyBuilder.ToMessageBody();
+
+                using (var client = new SmtpClient())
+                {
+                    await client.ConnectAsync("sandbox.smtp.mailtrap.io", 465, false); // Thay đổi thông tin máy chủ SMTP của Mailtrap
+                    await client.AuthenticateAsync("36b82a08f96a82", "b102352bb625e9"); // Thay đổi thông tin xác thực SMTP của Mailtrap
+
+                    await client.SendAsync(message);
+                    await client.DisconnectAsync(true);
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // Xử lý lỗi gửi email
+                return false;
+            }
+        }
+
+
+        private string GeneratePasswordResetToken()
+        {
+            var token = Guid.NewGuid().ToString();
+            return token;
         }
     }
 }
