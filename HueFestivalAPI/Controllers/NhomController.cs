@@ -3,7 +3,6 @@ using HueFestivalAPI.Models;
 using HueFestivalAPI.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Data;
 
 namespace HueFestivalAPI.Controllers
 {
@@ -17,7 +16,7 @@ namespace HueFestivalAPI.Controllers
             _nhomService = nhomService;
         }
 
-        [HttpGet]
+        [HttpGet("list-nhom")]
         public async Task<IActionResult> GetAllNhom()
         {
             try
@@ -31,7 +30,7 @@ namespace HueFestivalAPI.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPost]
+        [HttpPost("create-nhom")]
         public async Task<IActionResult> AddNhom(AddNhomDTO nhomDto)
         {
             var nhom = await _nhomService.AddNhomAsync(nhomDto);
@@ -40,7 +39,7 @@ namespace HueFestivalAPI.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPut("{id}")]
+        [HttpPut("update-nhom/{id}")]
         public async Task<ActionResult<NhomChuongTrinh>> UpdateNhom(AddNhomDTO nhomDto, int id)
         {
             try
@@ -55,11 +54,15 @@ namespace HueFestivalAPI.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpDelete("{id}")]
+        [HttpDelete("delete-nhom/{id}")]
         public async Task<ActionResult> DeleteNhom(int id)
         {
-            await _nhomService.DeleteNhomAsync(id);
-            return Ok();
+            var result = await _nhomService.DeleteNhomAsync(id);
+            if (result == false)
+            {
+                return NotFound();
+            }
+            return Ok("Delete Success!");
         }
     }
 }

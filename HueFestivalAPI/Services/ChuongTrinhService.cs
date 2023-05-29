@@ -1,11 +1,8 @@
 ﻿using AutoMapper;
 using HueFestivalAPI.DTO.ChuongTrinh;
 using HueFestivalAPI.Models;
-using HueFestivalAPI.Services.Interfaces;
+using HueFestivalAPI.Services.IServices;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
-using System.Globalization;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace HueFestivalAPI.Services
 {
@@ -40,7 +37,7 @@ namespace HueFestivalAPI.Services
             return result;
         }
 
-        public async Task<ChuongTrinhDTO> GetChuongTrinhByIdAsync(int idChuongTrinh)
+        public async Task<object> GetChuongTrinhByIdAsync(int idChuongTrinh)
         {
             var chuongTrinh = await _context.ChuongTrinhs
                 .Include(c => c.ChuongTrinhImages)
@@ -57,10 +54,15 @@ namespace HueFestivalAPI.Services
 
             var chuongTrinhDto = _mapper.Map<ChuongTrinhDTO>(chuongTrinh);
 
-            return chuongTrinhDto;
+            var result = new
+            {
+                type = 1,
+                detail = chuongTrinhDto
+            };
+            return result;
         }
 
-        public async Task<List<LichDienDTO>> GetNgayWithSoLuongChuongTrinhAsync()
+        public async Task<object> GetNgayWithSoLuongChuongTrinhAsync()
         {
             var firstDay = await _context.ChuongTrinhDetails
                 .OrderBy(c => c.StartDate)
@@ -74,7 +76,7 @@ namespace HueFestivalAPI.Services
                 .Select(i => firstDay.StartDate.AddDays(i).Date)
                 .ToList();
 
-            var result = ngays.Select(g => new LichDienDTO
+            var lichDien = ngays.Select(g => new LichDienDTO
             {
                 Ngay = g.ToString("yyyy-MM-dd"),
                 SoLuongChuongTrinh = _context.ChuongTrinhDetails.Count(d => d.StartDate.Date <= g && g <= d.EndDate.Date)
@@ -82,10 +84,15 @@ namespace HueFestivalAPI.Services
             .Where(x => x.SoLuongChuongTrinh > 0)
             .ToList();
 
+            var result = new
+            {
+                type = 1,
+                list = lichDien
+            };
             return result;
         }
 
-        public async Task<List<ChuongTrinhTheoNgayDTO>> GetChuongTrinhByNgayAsync(DateTime ngay)
+        public async Task<object> GetChuongTrinhByNgayAsync(DateTime ngay)
         {
             var chuongTrinhs = await _context.ChuongTrinhs
                 .Include(c => c.ChuongTrinhDetails)
@@ -93,7 +100,7 @@ namespace HueFestivalAPI.Services
                 .Where(c => c.ChuongTrinhDetails.Any(d => d.StartDate.Date <= ngay.Date && d.EndDate.Date >= ngay.Date))
                 .ToListAsync();
 
-            var chuongTrinhTheoNgayDTOs = chuongTrinhs.Select(c => new ChuongTrinhTheoNgayDTO
+            var chuongTrinhTheoNgayDtos = chuongTrinhs.Select(c => new ChuongTrinhTheoNgayDTO
             {
                 fdate = ngay.ToString("yyyy-MM-dd"),
                 type = 0,
@@ -113,16 +120,21 @@ namespace HueFestivalAPI.Services
                     .ToList()
             }).ToList();
 
-            return chuongTrinhTheoNgayDTOs;
+            var result = new
+            {
+                type = 1,
+                list = chuongTrinhTheoNgayDtos
+            };
+            return result;
         }
 
         public async Task<ChuongTrinh> AddChuongTrinhAsync(AddChuongTrinhDTO chuongTrinhDto, List<IFormFile> imageFiles)
         {
-            var program = _mapper.Map<ChuongTrinh>(chuongTrinhDto);
+            var chuongTrinh = _mapper.Map<ChuongTrinh>(chuongTrinhDto);
 
             try
             {
-                _context.ChuongTrinhs.Add(program);
+                _context.ChuongTrinhs.Add(chuongTrinh);
                 await _context.SaveChangesAsync();
 
                 var chuongTrinhImages = new List<ChuongTrinhImage>();
@@ -142,14 +154,14 @@ namespace HueFestivalAPI.Services
                         var chuongTrinhImage = new ChuongTrinhImage
                         {
                             PathImage = fileName,
-                            IdChuongTrinh = program.IdChuongTrinh 
+                            IdChuongTrinh = chuongTrinh.IdChuongTrinh 
                         };
 
                         chuongTrinhImages.Add(chuongTrinhImage);
                     }
                 }
 
-                program.ChuongTrinhImages = chuongTrinhImages;
+                chuongTrinh.ChuongTrinhImages = chuongTrinhImages;
 
                 await _context.SaveChangesAsync();
 
@@ -160,7 +172,7 @@ namespace HueFestivalAPI.Services
                     EndDate = DateTime.Parse(chuongTrinhDto.EndDate),
                     IdDiaDiem = chuongTrinhDto.IdDiaDiem,
                     IdNhom = chuongTrinhDto.IdNhom,
-                    IdChuongTrinh = program.IdChuongTrinh 
+                    IdChuongTrinh = chuongTrinh.IdChuongTrinh 
                 };
                 _context.ChuongTrinhDetails.Add(chuongTrinhDetails); 
                 await _context.SaveChangesAsync();
@@ -176,27 +188,28 @@ namespace HueFestivalAPI.Services
                 throw new Exception(innerException.Message);
             }
 
-            return program;
+            return chuongTrinh;
         }
 
-        public async Task<ChuongTrinhImage> UpdateImageChuongTrinhAsync(int idchuongtrinh, int idimage, IFormFile imageFile)
+        public async Task<ChuongTrinhImage> UpdateImageChuongTrinhAsync(int idChuongTrinh, int idImage, IFormFile imageFile)
         {
-            var image = await _context.ChuongTrinhImages.FindAsync(idimage);
+            var image = await _context.ChuongTrinhImages.FindAsync(idImage);
 
-            if (image == null)
-            {
-                return null;
-            }
-
-            if (image.IdChuongTrinh != idchuongtrinh)
+            if (image == null || image.IdChuongTrinh != idChuongTrinh)
             {
                 return null;
             }
 
             if (imageFile != null && imageFile.Length > 0)
             {
+                var filePath = Path.Combine("Uploads\\ChuongTrinhImage", image.PathImage);
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+                }
+
                 var fileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
-                var filePath = Path.Combine("Uploads\\ChuongTrinhImage", fileName);
+                filePath = Path.Combine("Uploads\\ChuongTrinhImage", fileName);
 
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
@@ -204,14 +217,16 @@ namespace HueFestivalAPI.Services
                 }
 
                 image.PathImage = fileName;
+
+                _context.ChuongTrinhImages.Update(image);
+                await _context.SaveChangesAsync();
             }
 
-            _context.ChuongTrinhImages.Update(image);
-            await _context.SaveChangesAsync();
             return image;
         }
 
-        public async Task DeleteChuongTrinhAsync(int id)
+
+        public async Task<bool> DeleteChuongTrinhAsync(int id)
         {
             var chuongTrinh = await _context.ChuongTrinhs
                 .Include(c => c.ChuongTrinhDetails)
@@ -220,37 +235,53 @@ namespace HueFestivalAPI.Services
 
             if (chuongTrinh != null)
             {
+                var chuongTrinhImages = await _context.ChuongTrinhImages
+                    .Where(ci => ci.IdChuongTrinh == chuongTrinh.IdChuongTrinh)
+                    .ToListAsync();
+
+                foreach (var chuongTrinhImage in chuongTrinhImages)
+                {
+                    var filePath = Path.Combine("Uploads\\ChuongTrinhImage", chuongTrinhImage.PathImage);
+                    if (File.Exists(filePath))
+                    {
+                        File.Delete(filePath);
+                    }
+                }
+
                 _context.ChuongTrinhDetails.RemoveRange(chuongTrinh.ChuongTrinhDetails);
                 _context.ChuongTrinhImages.RemoveRange(chuongTrinh.ChuongTrinhImages);
                 _context.ChuongTrinhs.Remove(chuongTrinh);
                 await _context.SaveChangesAsync();
+                return true;
             }
+            return false;
         }
+
 
         public async Task<ChuongTrinh> UpdateChuongTrinhAsync(UpdateChuongTrinhDTO chuongTrinhDto, int id)
         {
-            var chuongtrinh = await _context.ChuongTrinhs.FindAsync(id);
+            var chuongTrinh = await _context.ChuongTrinhs.FindAsync(id);
 
-            if (chuongtrinh == null)
+            if (chuongTrinh == null)
             {
                 return null;
             }
-            _mapper.Map(chuongTrinhDto, chuongtrinh);
-            _context.ChuongTrinhs.Update(chuongtrinh);
+            _mapper.Map(chuongTrinhDto, chuongTrinh);
+            _context.ChuongTrinhs.Update(chuongTrinh);
             await _context.SaveChangesAsync();
-            return chuongtrinh;
+            return chuongTrinh;
         }
 
-        public async Task<ChuongTrinhDetails> UpdateChuongTrinhDetailsAsync(UpdateChuongTrinhDetailsDTO detailsDto, int idchuongtrinh, int id_details)
+        public async Task<ChuongTrinhDetails> UpdateChuongTrinhDetailsAsync(UpdateChuongTrinhDetailsDTO detailsDto, int idChuongTrinh, int idDetails)
         {
-            var details = await _context.ChuongTrinhDetails.FindAsync(id_details);
+            var details = await _context.ChuongTrinhDetails.FindAsync(idDetails);
 
             if (details == null)
             {
                 return null;
             }
 
-            if (details.IdChuongTrinh != idchuongtrinh)
+            if (details.IdChuongTrinh != idChuongTrinh)
             {
                 return null;
             }
@@ -262,28 +293,32 @@ namespace HueFestivalAPI.Services
             return details;
         }
 
-        public async Task DeleteChuongTrinhDetailsAsync(int idchuongtrinh, int id_details)
+        public async Task<bool> DeleteChuongTrinhDetailsAsync(int idChuongTrinh, int idDetails)
         {
             var details = await _context.ChuongTrinhDetails
-                .FirstOrDefaultAsync(c => c.IdChuongTrinh == idchuongtrinh);
+                .FirstOrDefaultAsync(c => c.IdDetails == idDetails);
 
-            if (details != null && details.IdDetails == id_details)
+            if (details != null && details.IdChuongTrinh == idChuongTrinh)
             {
                 _context.ChuongTrinhDetails.Remove(details);
                 await _context.SaveChangesAsync();
+                return true;
             }
+            return false;
         }
 
-        public async Task DeleteChuongTrinhImageAsync(int idchuongtrinh, int idimage)
+        public async Task<bool> DeleteChuongTrinhImageAsync(int idChuongTrinh, int idImage)
         {
             var image = await _context.ChuongTrinhImages
-                .FirstOrDefaultAsync(c => c.IdImage == idimage);
+                .FirstOrDefaultAsync(c => c.IdImage == idImage);
 
-            if (image != null && image.IdChuongTrinh == idchuongtrinh)
+            if (image != null && image.IdChuongTrinh == idChuongTrinh)
             {
                 _context.ChuongTrinhImages.Remove(image);
                 await _context.SaveChangesAsync();
+                return true;
             }
+            return false;
         }
     }
 }

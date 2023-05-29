@@ -1,11 +1,8 @@
 ﻿using AutoMapper;
 using HueFestivalAPI.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Principal;
-using System;
-using HueFestivalAPI.Services.Interfaces;
+using HueFestivalAPI.Services.IServices;
 using HueFestivalAPI.DTO.TinTuc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace HueFestivalAPI.Services
 {
@@ -20,24 +17,35 @@ namespace HueFestivalAPI.Services
             _mapper = mapper;
         }
 
-        public async Task<List<TinTucDTO>> GetAllTinTucAsync(int pageIndex, int pageSize)
+        public async Task<object> GetAllTinTucAsync(int pageIndex, int pageSize)
         {
-            var tintucs = await _context.TinTucs
+            var tinTucs = await _context.TinTucs
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
-            var tintucDtos = _mapper.Map<List<TinTucDTO>>(tintucs);
-            return tintucDtos;
+            var tinTucDtos = _mapper.Map<List<TinTucDTO>>(tinTucs);
+            var result = new
+            {
+                type = 1,
+                list = tinTucDtos
+            };
+            return result;
         }
 
-        public async Task<ChiTietTinTucDTO> GetTinTucByIdAsync(int id)
+        public async Task<object> GetTinTucByIdAsync(int id)
         {
-            var tintuc = await _context.TinTucs.FirstOrDefaultAsync(t => t.IdTinTuc == id);
-            if (tintuc == null)
+            var tinTuc = await _context.TinTucs.FirstOrDefaultAsync(t => t.IdTinTuc == id);
+            if (tinTuc == null)
             {
                 return null;
             }
-            return _mapper.Map<ChiTietTinTucDTO>(tintuc);
+            var tintucDto = _mapper.Map<ChiTietTinTucDTO>(tinTuc);
+            var result = new
+            {
+                type = 1,
+                detail = tintucDto
+            };
+            return result;
         }
 
         public async Task<TinTuc> AddTinTucAsync(AddTinTucDTO tinTucDto, IFormFile imageFile)
@@ -62,40 +70,52 @@ namespace HueFestivalAPI.Services
 
         public async Task<TinTuc> UpdateTinTucAsync(AddTinTucDTO tinTucDto, int id, IFormFile imageFile)
         {
-            var tintuc = await _context.TinTucs.FindAsync(id);
-            if (tintuc == null)
+            var tinTuc = await _context.TinTucs.FindAsync(id);
+            if (tinTuc == null)
             {
                 return null;
             }
             if (imageFile != null && imageFile.Length > 0)
             {
+                var filePath = Path.Combine("Uploads\\TinTucImage", tinTuc.PathImage);
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+                }
                 var fileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
-                var filePath = Path.Combine("Uploads\\TinTucImage", fileName);
+                filePath = Path.Combine("Uploads\\TinTucImage", fileName);
 
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     await imageFile.CopyToAsync(stream);
                 }
 
-                tintuc.PathImage = fileName;
+                tinTuc.PathImage = fileName;
             }
-            _mapper.Map(tinTucDto, tintuc);
-            _context.TinTucs.Update(tintuc);
+            _mapper.Map(tinTucDto, tinTuc);
+            _context.TinTucs.Update(tinTuc);
             await _context.SaveChangesAsync();
-            return tintuc;
+            return tinTuc;
         }
 
 
-        public async Task DeleteTinTucAsync(int id)
+        public async Task<bool> DeleteTinTucAsync(int id)
         {
-            var tintuc = await _context.TinTucs
+            var tinTuc = await _context.TinTucs
                 .FirstOrDefaultAsync(c => c.IdTinTuc == id);
 
-            if (tintuc != null)
+            if (tinTuc != null)
             {
-                _context.TinTucs.Remove(tintuc);
+                var filePath = Path.Combine("Uploads\\TinTucImage", tinTuc.PathImage);
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+                }
+                _context.TinTucs.Remove(tinTuc);
                 await _context.SaveChangesAsync();
+                return true;
             }
+            return false;
         }
 
     }

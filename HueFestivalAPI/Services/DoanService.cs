@@ -24,7 +24,7 @@ namespace HueFestivalAPI.Services
             return doan;
         }
 
-        public async Task DeleteDoanAsync(int id)
+        public async Task<bool> DeleteDoanAsync(int id)
         {
             var doan = await _context.DoanChuongTrinhs
                 .FirstOrDefaultAsync(c => c.IdDoan == id);
@@ -33,7 +33,9 @@ namespace HueFestivalAPI.Services
             {
                 _context.DoanChuongTrinhs.Remove(doan);
                 await _context.SaveChangesAsync();
+                return true;
             }
+            return false;
         }
 
         public async Task<List<DoanChuongTrinhDTO>> GetAllDoanAsync()

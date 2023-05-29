@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace HueFestivalAPI.Models
 {
@@ -15,6 +16,7 @@ namespace HueFestivalAPI.Models
         public ChuongTrinhDetails ChuongTrinhDetails { get; set; }
         public int IdLoaiVe { get; set; }
         public LoaiVe LoaiVe { get; set; }
+        [JsonIgnore]
         public ICollection<ThongTinDatVe> ThongTinDatVes { get; set; }
     }
 }

@@ -8,6 +8,6 @@ namespace HueFestivalAPI.Services.IServices
         public Task<List<NhomChuongTrinhDTO>> GetAllNhomAsync();
         public Task<NhomChuongTrinh> AddNhomAsync(AddNhomDTO nhomDto);
         public Task<NhomChuongTrinh> UpdateNhomAsync(AddNhomDTO nhomDto, int id);
-        public Task DeleteNhomAsync(int id);
+        public Task<bool> DeleteNhomAsync(int id);
     }
 }

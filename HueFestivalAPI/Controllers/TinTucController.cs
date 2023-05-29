@@ -1,5 +1,5 @@
 ﻿using HueFestivalAPI.DTO.TinTuc;
-using HueFestivalAPI.Services.Interfaces;
+using HueFestivalAPI.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
@@ -16,7 +16,7 @@ namespace HueFestivalAPI.Controllers
             _tinTucService = tinTucService;
         }
 
-        [HttpGet]
+        [HttpGet("list-tintuc")]
         public async Task<IActionResult> GetAllTinTuc(int pageIndex, int pageSize)
         {
             try
@@ -30,21 +30,21 @@ namespace HueFestivalAPI.Controllers
 
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("tintuc-by-id/{id}")]
         public async Task<IActionResult> GetTinTucById(int id)
         {
-            var tintuc = await _tinTucService.GetTinTucByIdAsync(id);
-            return tintuc == null ? NotFound() : Ok(tintuc);
+            var tinTuc = await _tinTucService.GetTinTucByIdAsync(id);
+            return tinTuc == null ? NotFound() : Ok(tinTuc);
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPost]
+        [HttpPost("create-tintuc")]
         public async Task<IActionResult> AddTinTuc([FromForm] AddTinTucDTO tinTucDto, IFormFile imageFile)
         {
             try
             {
-                var tintuc = await _tinTucService.AddTinTucAsync(tinTucDto, imageFile);
-                return Ok(tintuc);
+                var tinTuc = await _tinTucService.AddTinTucAsync(tinTucDto, imageFile);
+                return Ok(tinTuc);
             }
             catch (Exception ex)
             {
@@ -53,13 +53,13 @@ namespace HueFestivalAPI.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPut("{id}")]
+        [HttpPut("update-tintuc/{id}")]
         public async Task<IActionResult> UpdateTinTuc([FromForm] AddTinTucDTO tinTucDto, int id, IFormFile imageFile)
         {
             try
             {
-                var tintuc = await _tinTucService.UpdateTinTucAsync(tinTucDto, id, imageFile);
-                return Ok(tintuc);
+                var tinTuc = await _tinTucService.UpdateTinTucAsync(tinTucDto, id, imageFile);
+                return Ok(tinTuc);
             }
             catch (Exception ex)
             {
@@ -68,11 +68,15 @@ namespace HueFestivalAPI.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpDelete("{id}")]
+        [HttpDelete("delete-tintuc/{id}")]
         public async Task<ActionResult> DeleteTinTuc(int id)
         {
-            await _tinTucService.DeleteTinTucAsync(id);
-            return Ok();
+            var result = await _tinTucService.DeleteTinTucAsync(id);
+            if (result == false)
+            {
+                return NotFound();
+            }
+            return Ok("Delete Success!");
         }
     }
 }

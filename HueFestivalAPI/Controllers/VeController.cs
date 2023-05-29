@@ -1,9 +1,9 @@
-﻿using HueFestivalAPI.DTO.Ve;
+﻿using HueFestivalAPI.DTO.DiaDiem;
+using HueFestivalAPI.DTO.Ve;
 using HueFestivalAPI.Models;
-using HueFestivalAPI.Services.Interfaces;
+using HueFestivalAPI.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Data;
 
 namespace HueFestivalAPI.Controllers
 {
@@ -17,7 +17,7 @@ namespace HueFestivalAPI.Controllers
             _veService = veService;
         }
 
-        [HttpGet("ve")]
+        [HttpGet("list-ve")]
         public async Task<IActionResult> GetAllVe()
         {
             try
@@ -31,30 +31,78 @@ namespace HueFestivalAPI.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPost("phatHanhVe/{id_details}")]
-        public async Task<IActionResult> PhatHanhVe(AddVeDTO veDto, int id_details)
+        [HttpPost("phat-hanh-ve/{id_details}")]
+        public async Task<IActionResult> PhatHanhVe(AddVeDTO veDto, int idDetails)
         {
-            var ve = await _veService.PhatHanhVeAsync(veDto, id_details);
+            var ve = await _veService.PhatHanhVeAsync(veDto, idDetails);
 
             return Ok(ve);
         }
 
-        [HttpPost("DatVe")]
-        public IActionResult CreateThongTinDatVe(ThongTinDatVeDTO thongTinDatVeDTO)
+        [HttpPost("dat-ve")]
+        public async Task<object> DatVe(ThongTinDatVeDTO thongTinDatVeDTO)
         {
-
-            var qrCodes = _veService.CreateThongTinDatVeAsync(thongTinDatVeDTO);
-
-            // Kiểm tra kết quả trả về
-            if (qrCodes.Count > 0)
+            var thongTinDatVe = await _veService.AddThongTinDatVe(thongTinDatVeDTO);
+            if (thongTinDatVe != null)
             {
-                // Thành công, trả về mã QRCode
-                return Ok(qrCodes);
+                var result = new
+                {
+                    message = "Đặt vé thành công!",
+                    detail = thongTinDatVe
+                };
+                return Ok(result);
             }
             else
             {
-                // Số lượng vé không đủ
-                return BadRequest("Số lượng vé còn lại không đủ");
+                return BadRequest("Số lượng vé còn lại không đủ!");
+            }
+        }
+
+        [HttpPost("thanh-toan")]
+        public async Task<object> ThanhToan(ThongTinThanhToanDTO thongTinThanhToanDTO, int idThongTin)
+        {
+            try
+            {
+                var qrCodes = await _veService.ThanhToanAsync(thongTinThanhToanDTO, idThongTin);
+                if (qrCodes != null)
+                {
+                    var result = new
+                    {
+                        message = "Thanh toán thành công!",
+                        list = qrCodes
+                    };
+                    return Ok(result);
+                }
+                else
+                {
+                    return BadRequest("Thanh toán thất bại!");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        [HttpPost("checkin")]
+        public async Task<IActionResult> Checkin(string qrCode)
+        {
+            try
+            {
+                var result = await _veService.CheckinAsync(qrCode);
+                if (result != null)
+                {
+                    return Ok(result);
+                }
+                else
+                {
+                    return BadRequest("Vé không hợp lệ hoặc đã Checkin rồi!");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
         }
 

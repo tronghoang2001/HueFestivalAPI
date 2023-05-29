@@ -1,8 +1,7 @@
 ﻿using HueFestivalAPI.DTO.DiaDiem;
-using HueFestivalAPI.Services.Interfaces;
+using HueFestivalAPI.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Data;
 
 namespace HueFestivalAPI.Controllers
 {
@@ -15,7 +14,8 @@ namespace HueFestivalAPI.Controllers
         {
             _diaDiemService = diaDiemService;
         }
-        [HttpGet]
+
+        [HttpGet("list-diadiem-menu")]
         public async Task<IActionResult> GetAllMenu()
         {
             try
@@ -29,22 +29,22 @@ namespace HueFestivalAPI.Controllers
 
         }
 
-        [HttpGet("getDiaDiemBySubMenu")]
-        public async Task<ActionResult<List<DiaDiemDTO>>> GetDiaDiemByIdSubMenu(int idSubMenu, int pageIndex, int pageSize)
+        [HttpGet("diadiem-by-id-submenu")]
+        public async Task<object> GetDiaDiemByIdSubMenu(int idSubMenu, int pageIndex, int pageSize)
         {
             var diaDiems = await _diaDiemService.GetDiaDiemByIdSubMenuAsync(idSubMenu, pageIndex, pageSize);
             return diaDiems;
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("diadiem-by-id/{id}")]
         public async Task<IActionResult> GetDiaDiemById(int id)
         {
-            var diadiem = await _diaDiemService.GetDiaDiemByIdAsync(id);
-            return diadiem == null ? NotFound() : Ok(diadiem);
+            var diaDiem = await _diaDiemService.GetDiaDiemByIdAsync(id);
+            return diaDiem == null ? NotFound() : Ok(diaDiem);
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPost("diaDiemMenu")]
+        [HttpPost("create-diadiem-menu")]
         public async Task<IActionResult> AddDiaDiemMenu([FromForm] AddDiaDiemMenuDTO diaDiemMenuDto, IFormFile iconFile)
         {
             try
@@ -59,7 +59,7 @@ namespace HueFestivalAPI.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPost("diaDiemSubMenu")]
+        [HttpPost("create-diadiem-submenu")]
         public async Task<IActionResult> AddDiaDiemSubMenu([FromForm] AddDiaDiemSubMenuDTO diaDiemSubMenuDto, IFormFile iconFile)
         {
             try
@@ -74,7 +74,7 @@ namespace HueFestivalAPI.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPost("diaDiem")]
+        [HttpPost("create-diadiem")]
         public async Task<IActionResult> AddDiaDiem([FromForm] AddDiaDiemDTO diaDiemDto, IFormFile imageFile)
         {
             try
@@ -89,7 +89,7 @@ namespace HueFestivalAPI.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPut("updateDiaDiemMenu/{id}")]
+        [HttpPut("update-diadiem-menu/{id}")]
         public async Task<IActionResult> UpdateDiaDiemMenu([FromForm] AddDiaDiemMenuDTO diaDiemMenuDto, int id, IFormFile iconFile)
         {
             try
@@ -104,7 +104,7 @@ namespace HueFestivalAPI.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPut("updateDiaDiemSubMenu/{id}")]
+        [HttpPut("update-diadiem-submenu/{id}")]
         public async Task<IActionResult> UpdateDiaDiemSubMenu([FromForm] AddDiaDiemSubMenuDTO diaDiemSubMenuDto, int id, IFormFile iconFile)
         {
             try
@@ -119,7 +119,7 @@ namespace HueFestivalAPI.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPut("updateDiaDiem/{id}")]
+        [HttpPut("update-diadiem/{id}")]
         public async Task<IActionResult> UpdateDiaDiem([FromForm] AddDiaDiemDTO diaDiemDto, int id, IFormFile imageFile)
         {
             try
@@ -134,27 +134,39 @@ namespace HueFestivalAPI.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpDelete("deleteDiaDiemMenu/{id}")]
+        [HttpDelete("delete-diadiem-menu/{id}")]
         public async Task<ActionResult> DeleteDiaDiemMenu(int id)
         {
-            await _diaDiemService.DeleteDiaDiemMenuAsync(id);
-            return Ok();
+            var result = await _diaDiemService.DeleteDiaDiemMenuAsync(id);
+            if(result == false)
+            {
+                return NotFound();
+            }
+            return Ok("Delete Success!");
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpDelete("deleteDiaDiemSubMenu/{id}")]
+        [HttpDelete("delete-diadiem-submenu/{id}")]
         public async Task<ActionResult> DeleteDiaDiemSubMenu(int id)
         {
-            await _diaDiemService.DeleteDiaDiemSubMenuAsync(id);
-            return Ok();
+            var result = await _diaDiemService.DeleteDiaDiemSubMenuAsync(id);
+            if (result == false)
+            {
+                return NotFound();
+            }
+            return Ok("Delete Success!");
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpDelete("deleteDiaDiem/{id}")]
+        [HttpDelete("delete-diadiem/{id}")]
         public async Task<ActionResult> DeleteDiaDiem(int id)
         {
-            await _diaDiemService.DeleteDiaDiemAsync(id);
-            return Ok();
+            var result = await _diaDiemService.DeleteDiaDiemAsync(id);
+            if (result == false)
+            {
+                return NotFound();
+            }
+            return Ok("Delete Success!");
         }
     }
 }

@@ -1,12 +1,11 @@
 ﻿using AutoMapper;
 using HueFestivalAPI.DTO.Account;
 using HueFestivalAPI.Models;
-using HueFestivalAPI.Services.Interfaces;
+using HueFestivalAPI.Services.IServices;
 using MailKit.Net.Smtp;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MimeKit;
-using NETCore.MailKit.Core;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -18,14 +17,12 @@ namespace HueFestivalAPI.Services
         private readonly HueFestivalContext _context;
         private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public AccountService(HueFestivalContext context, IConfiguration configuration, IMapper mapper, IHttpContextAccessor httpContextAccessor)
+        public AccountService(HueFestivalContext context, IConfiguration configuration, IMapper mapper)
         {
             _context = context;
             _configuration = configuration;
             _mapper = mapper;
-            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<Account> AddAccountAsync(AddAccountDTO accountDto)
@@ -128,9 +125,9 @@ namespace HueFestivalAPI.Services
             return _mapper.Map<List<AccountDTO>>(accounts);
         }
 
-        public async Task<Account> ChangePasswordAsync(ChangePasswordDTO accountDto, int id)
+        public async Task<Account> ChangePasswordAsync(ChangePasswordDTO accountDto, string email)
         {
-            var account = await _context.Account.FindAsync(id);
+            var account = await _context.Account.FirstOrDefaultAsync(a => a.Email == email);
 
             if (account == null)
             {
@@ -156,9 +153,9 @@ namespace HueFestivalAPI.Services
 
         public async Task<List<ChucNangDTO>> GetAllChucNangAsync()
         {
-            var chucnangs = await _context.ChucNangs
+            var chucNangs = await _context.ChucNangs
                .ToListAsync();
-            return chucnangs.Select(c => new ChucNangDTO
+            return chucNangs.Select(c => new ChucNangDTO
             {
                 id = c.IdChucNang,
                 name = c.Name
@@ -167,44 +164,46 @@ namespace HueFestivalAPI.Services
 
         public async Task<ChucNang> AddChucNangAsync(AddChucNangDTO chucNangDto)
         {
-            var chucnang = new ChucNang
+            var chucNang = new ChucNang
             {
                 Name = chucNangDto.Name
             };
 
-            await _context.ChucNangs.AddAsync(chucnang);
+            await _context.ChucNangs.AddAsync(chucNang);
             await _context.SaveChangesAsync();
 
-            return chucnang;
+            return chucNang;
         }
 
         public async Task<ChucNang> UpdateChucNangAsync(AddChucNangDTO chucNangDto, int id)
         {
-            var chucnang = await _context.ChucNangs.FindAsync(id);
+            var chucNang = await _context.ChucNangs.FindAsync(id);
 
-            if (chucnang == null)
+            if (chucNang == null)
             {
                 return null;
             }
 
-            chucnang.Name = chucNangDto.Name;
+            chucNang.Name = chucNangDto.Name;
 
-            _context.ChucNangs.Update(chucnang);
+            _context.ChucNangs.Update(chucNang);
             await _context.SaveChangesAsync();
 
-            return chucnang;
+            return chucNang;
         }
 
-        public async Task DeleteChucNangAsync(int id)
+        public async Task<bool> DeleteChucNangAsync(int id)
         {
-            var chucnang = await _context.ChucNangs
+            var chucNang = await _context.ChucNangs
                 .FirstOrDefaultAsync(c => c.IdChucNang == id);
 
-            if (chucnang != null)
+            if (chucNang != null)
             {
-                _context.ChucNangs.Remove(chucnang);
+                _context.ChucNangs.Remove(chucNang);
                 await _context.SaveChangesAsync();
+                return true;
             }
+            return false;
         }
 
         public async Task<Quyen> AddQuyenAsync(AddQuyenDTO quyenDto)
@@ -245,7 +244,7 @@ namespace HueFestivalAPI.Services
             return _mapper.Map<List<QuyenDTO>>(quyens);
         }
 
-        public async Task DeleteQuyenAsync(int id)
+        public async Task<bool> DeleteQuyenAsync(int id)
         {
             var quyen = await _context.Quyens
                 .Include(c => c.PhanQuyenChucNangs)
@@ -256,7 +255,9 @@ namespace HueFestivalAPI.Services
                 _context.PhanQuyenChucNangs.RemoveRange(quyen.PhanQuyenChucNangs);
                 _context.Quyens.Remove(quyen);
                 await _context.SaveChangesAsync();
+                return true;
             }
+            return false;
         }
 
         public async Task<bool> ForgotPassword(string email)
@@ -267,7 +268,7 @@ namespace HueFestivalAPI.Services
                 return false;
             }
 
-            var token = GeneratePasswordResetToken();
+            var token = Guid.NewGuid().ToString();
             user.ResetToken = token;
             await _context.SaveChangesAsync();
 
@@ -302,7 +303,7 @@ namespace HueFestivalAPI.Services
             {
                 var message = new MimeMessage();
                 message.From.Add(new MailboxAddress("Sender Name", "12a9nth@gmail.com"));
-                message.To.Add(new MailboxAddress(email, email)); // Đặt cùng địa chỉ email cho tên người nhận
+                message.To.Add(new MailboxAddress(email, email)); 
 
                 message.Subject = "Password Reset";
 
@@ -313,27 +314,17 @@ namespace HueFestivalAPI.Services
 
                 using (var client = new SmtpClient())
                 {
-                    await client.ConnectAsync("sandbox.smtp.mailtrap.io", 465, false); // Thay đổi thông tin máy chủ SMTP của Mailtrap
-                    await client.AuthenticateAsync("36b82a08f96a82", "b102352bb625e9"); // Thay đổi thông tin xác thực SMTP của Mailtrap
-
+                    await client.ConnectAsync("sandbox.smtp.mailtrap.io", 465, false); 
+                    await client.AuthenticateAsync("36b82a08f96a82", "b102352bb625e9");
                     await client.SendAsync(message);
                     await client.DisconnectAsync(true);
                 }
-
                 return true;
             }
             catch (Exception ex)
             {
-                // Xử lý lỗi gửi email
                 return false;
             }
-        }
-
-
-        private string GeneratePasswordResetToken()
-        {
-            var token = Guid.NewGuid().ToString();
-            return token;
         }
     }
 }

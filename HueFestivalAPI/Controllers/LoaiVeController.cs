@@ -1,10 +1,8 @@
 ﻿using HueFestivalAPI.DTO.LoaiVe;
 using HueFestivalAPI.Models;
-using HueFestivalAPI.Services.Interfaces;
 using HueFestivalAPI.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Data;
 
 namespace HueFestivalAPI.Controllers
 {
@@ -18,7 +16,7 @@ namespace HueFestivalAPI.Controllers
             _loaiVeService = loaiVeService;
         }
 
-        [HttpGet("loaive")]
+        [HttpGet("list-loaive")]
         public async Task<IActionResult> GetAllLoaiVe()
         {
             try
@@ -32,22 +30,22 @@ namespace HueFestivalAPI.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPost("loaive")]
-        public async Task<IActionResult> AddLoaiVe(AddLoaiVeDTO loaiveDto)
+        [HttpPost("create-loaive")]
+        public async Task<IActionResult> AddLoaiVe(AddLoaiVeDTO loaiVeDto)
         {
-            var loaive = await _loaiVeService.AddLoaiVeAsync(loaiveDto);
+            var loaiVe = await _loaiVeService.AddLoaiVeAsync(loaiVeDto);
 
-            return Ok(loaive);
+            return Ok(loaiVe);
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPut("updateLoaiVe/{id}")]
-        public async Task<ActionResult<LoaiVe>> UpdateLoaiVe(AddLoaiVeDTO loaiveDto, int id)
+        [HttpPut("update-loaive/{id}")]
+        public async Task<ActionResult<LoaiVe>> UpdateLoaiVe(AddLoaiVeDTO loaiVeDto, int id)
         {
             try
             {
-                var loaive = await _loaiVeService.UpdateLoaiVeAsync(loaiveDto, id);
-                return Ok(loaive);
+                var loaiVe = await _loaiVeService.UpdateLoaiVeAsync(loaiVeDto, id);
+                return Ok(loaiVe);
             }
             catch (Exception ex)
             {
@@ -56,11 +54,15 @@ namespace HueFestivalAPI.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpDelete("deleteLoaiVe/{id}")]
+        [HttpDelete("delete-loaive/{id}")]
         public async Task<ActionResult> DeleteLoaiVe(int id)
         {
-            await _loaiVeService.DeleteLoaiVeAsync(id);
-            return Ok();
+            var result = await _loaiVeService.DeleteLoaiVeAsync(id);
+            if (result == false)
+            {
+                return NotFound();
+            }
+            return Ok("Delete Success!");
         }
     }
 }

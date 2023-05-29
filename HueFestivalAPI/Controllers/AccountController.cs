@@ -1,6 +1,6 @@
 ﻿using HueFestivalAPI.DTO.Account;
 using HueFestivalAPI.Models;
-using HueFestivalAPI.Services.Interfaces;
+using HueFestivalAPI.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,7 +17,7 @@ namespace HueFestivalAPI.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpGet("account")]
+        [HttpGet("list-account")]
         public async Task<IActionResult> GetAllAccounts()
         {
             try
@@ -31,7 +31,7 @@ namespace HueFestivalAPI.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPost("register")]
+        [HttpPost("create-account")]
         public async Task<IActionResult> Register(AddAccountDTO accountDto)
         {
             try
@@ -57,7 +57,7 @@ namespace HueFestivalAPI.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPut("adminUpdateAccount/{id}")]
+        [HttpPut("admin-update-account/{id}")]
         public async Task<IActionResult> AdminUpdateAccount(AdminUpdateAccountDTO accountDto, int id)
         {
             try
@@ -72,7 +72,7 @@ namespace HueFestivalAPI.Controllers
         }
 
         [Authorize(Roles = "User")]
-        [HttpPut("userUpdateAccount/{id}")]
+        [HttpPut("user-update-account/{id}")]
         public async Task<ActionResult<Account>> UserUpdateAccount(UserUpdateAccountDTO accountDto, int id)
         {
             try
@@ -87,12 +87,12 @@ namespace HueFestivalAPI.Controllers
         }
 
         [Authorize(Roles = "User")]
-        [HttpPut("changePassword/{id}")]
-        public async Task<IActionResult> ChangePassword(ChangePasswordDTO accountDto, int id)
+        [HttpPut("change-password/{email}")]
+        public async Task<IActionResult> ChangePassword(ChangePasswordDTO accountDto, string email)
         {
             try
             {
-                var account = await _accountService.ChangePasswordAsync(accountDto, id);
+                var account = await _accountService.ChangePasswordAsync(accountDto, email);
                 return Ok(account);
             }
             catch (Exception ex)
@@ -102,7 +102,7 @@ namespace HueFestivalAPI.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpGet("chucnang")]
+        [HttpGet("list-chucnang")]
         public async Task<IActionResult> GetAllChucNang()
         {
             try
@@ -116,7 +116,7 @@ namespace HueFestivalAPI.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPost("chucnang")]
+        [HttpPost("create-chucnang")]
         public async Task<IActionResult> AddChucNang(AddChucNangDTO chucNangDto)
         {
             try
@@ -131,7 +131,7 @@ namespace HueFestivalAPI.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPut("updateChucNang/{id}")]
+        [HttpPut("update-chucnang/{id}")]
         public async Task<ActionResult<Account>> UpdateChucNang(AddChucNangDTO chucNangDto, int id)
         {
             try
@@ -146,15 +146,19 @@ namespace HueFestivalAPI.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpDelete("deleteChucNang/{id}")]
+        [HttpDelete("delete-chucnang/{id}")]
         public async Task<ActionResult> DeleteChucNang(int id)
         {
-            await _accountService.DeleteChucNangAsync(id);
-            return Ok();
+            var result = await _accountService.DeleteChucNangAsync(id);
+            if (result == false)
+            {
+                return NotFound();
+            }
+            return Ok("Delete Success!");
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpGet("quyen")]
+        [HttpGet("list-quyen")]
         public async Task<IActionResult> GetAllQuyen()
         {
             try
@@ -168,7 +172,7 @@ namespace HueFestivalAPI.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPost("quyen")]
+        [HttpPost("create-quyen")]
         public async Task<IActionResult> AddQuyen(AddQuyenDTO quyenDto)
         {
             var quyen = await _accountService.AddQuyenAsync(quyenDto);
@@ -177,20 +181,24 @@ namespace HueFestivalAPI.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpDelete("deleteQuyen/{id}")]
+        [HttpDelete("delete-quyen/{id}")]
         public async Task<ActionResult> DeleteQuyen(int id)
         {
-            await _accountService.DeleteQuyenAsync(id);
-            return Ok();
+            var result = await _accountService.DeleteQuyenAsync(id);
+            if(result == false)
+            {
+                return NotFound();  
+            } 
+            return Ok("Delete Success!");
         }
 
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword(string email)
         {
-            var isEmailSent = await _accountService.ForgotPassword(email);
-            if (!isEmailSent)
+            var isSuccess = await _accountService.ForgotPassword(email);
+            if (!isSuccess)
             {
-                return StatusCode(500, "Failed to send password reset email.");
+                return StatusCode(500, "Gửi mã khôi phục đến Email không thành công!");
             }
 
             return Ok();
@@ -202,7 +210,7 @@ namespace HueFestivalAPI.Controllers
             var isSuccess = await _accountService.ResetPassword(resetPasswordDto, email);
             if (!isSuccess)
             {
-                return BadRequest("Invalid password reset token.");
+                return BadRequest("Mã khôi phục không hợp lệ!");
             }
 
             return Ok();

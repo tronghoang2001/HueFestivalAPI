@@ -1,7 +1,5 @@
 ﻿using HueFestivalAPI.DTO.Doan;
-using HueFestivalAPI.DTO.Nhom;
 using HueFestivalAPI.Models;
-using HueFestivalAPI.Services;
 using HueFestivalAPI.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +15,7 @@ namespace HueFestivalAPI.Controllers
         {
             _doanService = doanService;
         }
-        [HttpGet]
+        [HttpGet("list-doan")]
         public async Task<IActionResult> GetAllDoan()
         {
             try
@@ -31,7 +29,7 @@ namespace HueFestivalAPI.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPost]
+        [HttpPost("create-doan")]
         public async Task<IActionResult> AddDoan(AddDoanDTO doanDto)
         {
             var doan = await _doanService.AddDoanAsync(doanDto);
@@ -40,7 +38,7 @@ namespace HueFestivalAPI.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPut("{id}")]
+        [HttpPut("update-doan/{id}")]
         public async Task<ActionResult<NhomChuongTrinh>> UpdateDoan(AddDoanDTO doanDto, int id)
         {
             try
@@ -55,11 +53,15 @@ namespace HueFestivalAPI.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpDelete("{id}")]
+        [HttpDelete("delete-doan/{id}")]
         public async Task<ActionResult> DeleteDoan(int id)
         {
-            await _doanService.DeleteDoanAsync(id);
-            return Ok();
+            var result = await _doanService.DeleteDoanAsync(id);
+            if (result == false)
+            {
+                return NotFound();
+            }
+            return Ok("Delete Success!");
         }
     }
 }

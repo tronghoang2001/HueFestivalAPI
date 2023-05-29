@@ -24,7 +24,7 @@ namespace HueFestivalAPI.Services
             return nhom;
         }
 
-        public async Task DeleteNhomAsync(int id)
+        public async Task<bool> DeleteNhomAsync(int id)
         {
             var nhom = await _context.NhomChuongTrinhs
                 .FirstOrDefaultAsync(c => c.IdNhom == id);
@@ -33,7 +33,9 @@ namespace HueFestivalAPI.Services
             {
                 _context.NhomChuongTrinhs.Remove(nhom);
                 await _context.SaveChangesAsync();
+                return true;
             }
+            return false;
         }
 
         public async Task<List<NhomChuongTrinhDTO>> GetAllNhomAsync()

@@ -12,5 +12,6 @@ namespace HueFestivalAPI.Models
         public DateTime NgayKichHoat { get; set; }
         public int IdThongTin { get; set; }
         public ThongTinDatVe ThongTinDatVe { get; set; }
+        public ICollection<Checkin> Checkins { get; set; }
     }
 }

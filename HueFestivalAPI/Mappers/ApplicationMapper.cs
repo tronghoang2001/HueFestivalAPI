@@ -137,6 +137,18 @@ namespace HueFestivalAPI.Helpers
             CreateMap<DoanChuongTrinh, DoanChuongTrinhDTO>()
                 .ForMember(dest => dest.id, opt => opt.MapFrom(src => src.IdDoan));
             CreateMap<AddDoanDTO, DoanChuongTrinh>();
+
+            CreateMap<Checkin, ThongTinCheckinDTO>()
+                .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.KichHoatVe.ThongTinDatVe.HoTen))
+                .ForMember(dest => dest.so_dien_thoai, opt => opt.MapFrom(src => src.KichHoatVe.ThongTinDatVe.SoDienThoai))
+                .ForMember(dest => dest.so_cmnd, opt => opt.MapFrom(src => src.KichHoatVe.ThongTinDatVe.SoCMND))
+                .ForMember(dest => dest.loaive, opt => opt.MapFrom(src => src.KichHoatVe.ThongTinDatVe.Ve.LoaiVe.Name))
+                .ForMember(dest => dest.chuongtrinh_name, opt => opt.MapFrom(src => src.KichHoatVe.ThongTinDatVe.Ve.ChuongTrinhDetails.ChuongTrinh.Name))
+                .ForMember(dest => dest.diadiem_name, opt => opt.MapFrom(src => src.KichHoatVe.ThongTinDatVe.Ve.ChuongTrinhDetails.DiaDiem.Title));
+
+            CreateMap<ThongTinDatVeDTO, ThongTinDatVe>()
+                .ForMember(dest => dest.NgayDat, opt => opt.MapFrom(src => DateTime.Now))
+                .ForMember(dest => dest.TinhTrangThanhToan, opt => opt.MapFrom(src => false));
         }
     }
 }

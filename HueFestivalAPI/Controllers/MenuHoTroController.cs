@@ -1,5 +1,5 @@
 ﻿using HueFestivalAPI.DTO.MenuHoTro;
-using HueFestivalAPI.Services.Interfaces;
+using HueFestivalAPI.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,7 +16,7 @@ namespace HueFestivalAPI.Controllers
             _menuHoTroService = menuHoTroService;
         }
 
-        [HttpGet]
+        [HttpGet("list-menu-hotro")]
         public async Task<IActionResult> GetAllMenuHoTro()
         {
             try
@@ -30,7 +30,7 @@ namespace HueFestivalAPI.Controllers
 
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("menu-hotro-by-id/{id}")]
         public async Task<IActionResult> GetMenuHoTroById(int id)
         {
             var menu = await _menuHoTroService.GetMenuHoTroByIdAsync(id);
@@ -38,7 +38,7 @@ namespace HueFestivalAPI.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPost]
+        [HttpPost("create-menu-hotro")]
         public async Task<IActionResult> AddMenuHoTro(AddMenuHoTroDTO menuHoTroDto)
         {
             try
@@ -53,7 +53,7 @@ namespace HueFestivalAPI.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPut("{id}")]
+        [HttpPut("update-menu-hotro/{id}")]
         public async Task<IActionResult> UpdateMenuHoTro(AddMenuHoTroDTO menuHoTroDto, int id)
         {
             try
@@ -68,11 +68,15 @@ namespace HueFestivalAPI.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteTinTuc(int id)
+        [HttpDelete("delete-menu-hotro/{id}")]
+        public async Task<ActionResult> DeleteMenuHoTro(int id)
         {
-            await _menuHoTroService.DeleteMenuAsync(id);
-            return Ok();
+            var result = await _menuHoTroService.DeleteMenuAsync(id);
+            if (result == false)
+            {
+                return NotFound();
+            }
+            return Ok("Delete Success!");
         }
     }
 }

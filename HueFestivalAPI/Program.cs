@@ -1,6 +1,5 @@
 using HueFestivalAPI.Models;
 using HueFestivalAPI.Services;
-using HueFestivalAPI.Services.Interfaces;
 using HueFestivalAPI.Services.IServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;

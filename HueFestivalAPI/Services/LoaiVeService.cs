@@ -17,43 +17,45 @@ namespace HueFestivalAPI.Services
             _mapper = mapper;
         }
 
-        public async Task<LoaiVe> AddLoaiVeAsync(AddLoaiVeDTO loaiveDto)
+        public async Task<LoaiVe> AddLoaiVeAsync(AddLoaiVeDTO loaiVeDto)
         {
-            var loaive = _mapper.Map<LoaiVe>(loaiveDto);
-            await _context.LoaiVes.AddAsync(loaive);
+            var loaiVe = _mapper.Map<LoaiVe>(loaiVeDto);
+            await _context.LoaiVes.AddAsync(loaiVe);
             await _context.SaveChangesAsync();
-            return loaive;
+            return loaiVe;
         }
 
-        public async Task DeleteLoaiVeAsync(int id)
+        public async Task<bool> DeleteLoaiVeAsync(int id)
         {
-            var loaive = await _context.LoaiVes
+            var loaiVe = await _context.LoaiVes
                 .FirstOrDefaultAsync(c => c.IdLoaiVe == id);
 
-            if (loaive != null)
+            if (loaiVe != null)
             {
-                _context.LoaiVes.Remove(loaive);
+                _context.LoaiVes.Remove(loaiVe);
                 await _context.SaveChangesAsync();
+                return true;
             }
+            return false;
         }
 
         public async Task<List<LoaiVeDTO>> GetAllLoaiVeAsync()
         {
-            var loaives = await _context.LoaiVes.ToListAsync();
-            return _mapper.Map<List<LoaiVeDTO>>(loaives);
+            var loaiVes = await _context.LoaiVes.ToListAsync();
+            return _mapper.Map<List<LoaiVeDTO>>(loaiVes);
         }
 
-        public async Task<LoaiVe> UpdateLoaiVeAsync(AddLoaiVeDTO loaiveDto, int id)
+        public async Task<LoaiVe> UpdateLoaiVeAsync(AddLoaiVeDTO loaiVeDto, int id)
         {
-            var loaive = await _context.LoaiVes.FindAsync(id);
-            if (loaive == null)
+            var loaiVe = await _context.LoaiVes.FindAsync(id);
+            if (loaiVe == null)
             {
                 return null;
             }
-            _mapper.Map(loaiveDto, loaive);
-            _context.LoaiVes.Update(loaive);
+            _mapper.Map(loaiVeDto, loaiVe);
+            _context.LoaiVes.Update(loaiVe);
             await _context.SaveChangesAsync();
-            return loaive;
+            return loaiVe;
         }
     }
 }

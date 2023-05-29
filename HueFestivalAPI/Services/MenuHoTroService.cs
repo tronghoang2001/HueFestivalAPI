@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using HueFestivalAPI.DTO.MenuHoTro;
 using HueFestivalAPI.Models;
-using HueFestivalAPI.Services.Interfaces;
+using HueFestivalAPI.Services.IServices;
 using Microsoft.EntityFrameworkCore;
 
 namespace HueFestivalAPI.Services
@@ -17,13 +17,19 @@ namespace HueFestivalAPI.Services
             _mapper = mapper;
         }
 
-        public async Task<List<MenuHoTroDTO>> GetAllMenuHoTroAsync()
+        public async Task<object> GetAllMenuHoTroAsync()
         {
             var menus = await _context.MenuHoTros.ToListAsync();
-            return _mapper.Map<List<MenuHoTroDTO>>(menus);
+            var menuDtos = _mapper.Map<List<MenuHoTroDTO>>(menus);
+            var result = new
+            {
+                type = 1,
+                list = menuDtos
+            };
+            return result;
         }
 
-        public async Task<ChiTietMenuHoTroDTO> GetMenuHoTroByIdAsync(int id)
+        public async Task<object> GetMenuHoTroByIdAsync(int id)
         {
             var menu = await _context.MenuHoTros
                 .FirstOrDefaultAsync(m => m.IdHoTro == id);
@@ -32,7 +38,12 @@ namespace HueFestivalAPI.Services
                 return null;
             }
             var menuDto = _mapper.Map<ChiTietMenuHoTroDTO>(menu);
-            return menuDto;
+            var result = new
+            {
+                type = 1,
+                detail = menuDto
+            };
+            return result;
         }
 
         public async Task<MenuHoTro> AddMenuAsync(AddMenuHoTroDTO menuHoTroDto)
@@ -56,7 +67,7 @@ namespace HueFestivalAPI.Services
             return menu;
         }
 
-        public async Task DeleteMenuAsync(int id)
+        public async Task<bool> DeleteMenuAsync(int id)
         {
             var menu = await _context.MenuHoTros
                 .FirstOrDefaultAsync(c => c.IdHoTro == id);
@@ -65,7 +76,9 @@ namespace HueFestivalAPI.Services
             {
                 _context.MenuHoTros.Remove(menu);
                 await _context.SaveChangesAsync();
+                return true;
             }
+            return false;
         }
     }
 }

@@ -1,10 +1,7 @@
 ﻿using HueFestivalAPI.DTO.ChuongTrinh;
-using HueFestivalAPI.Models;
-using HueFestivalAPI.Services.Interfaces;
+using HueFestivalAPI.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Data;
 
 namespace HueFestivalAPI.Controllers
 {
@@ -13,14 +10,12 @@ namespace HueFestivalAPI.Controllers
     public class ChuongTrinhController : ControllerBase
     {
         private readonly IChuongTrinhService _chuongTrinhService;
-        private readonly HueFestivalContext _context;
-        public ChuongTrinhController(IChuongTrinhService chuongTrinhService, HueFestivalContext context)
+        public ChuongTrinhController(IChuongTrinhService chuongTrinhService)
         {
             _chuongTrinhService = chuongTrinhService;
-            _context = context;
         }
 
-        [HttpGet]
+        [HttpGet("list-chuongtrinh")]
         public async Task<IActionResult> GetAllChuongTrinh()
         {
             try
@@ -34,21 +29,22 @@ namespace HueFestivalAPI.Controllers
 
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("chuongtrinh-by-id/{id}")]
         public async Task<IActionResult> GetChuongTrinhById(int id)
         {
-            var chuongtrinh = await _chuongTrinhService.GetChuongTrinhByIdAsync(id);
-            return chuongtrinh == null ? NotFound() : Ok(chuongtrinh);
+            var chuongTrinh = await _chuongTrinhService.GetChuongTrinhByIdAsync(id);
+            return chuongTrinh == null ? NotFound() : Ok(chuongTrinh);
         }
 
-        [HttpGet("ngay")]
-        public async Task<ActionResult<List<LichDienDTO>>> GetNgayWithSoLuongChuongTrinh()
+        [HttpGet("lichdien")]
+        public async Task<IActionResult> GetNgayWithSoLuongChuongTrinh()
         {
             var ngays = await _chuongTrinhService.GetNgayWithSoLuongChuongTrinhAsync();
             return Ok(ngays);
         }
-        [HttpGet("ngay/{ngay}")]
-        public async Task<ActionResult<List<ChuongTrinhTheoNgayDTO>>> GetChuongTrinhByNgay(DateTime ngay)
+
+        [HttpGet("chuongtrinh-theo-ngay/{ngay}")]
+        public async Task<object> GetChuongTrinhByNgay(DateTime ngay)
         {
             var chuongTrinhs = await _chuongTrinhService.GetChuongTrinhByNgayAsync(ngay);
 
@@ -56,7 +52,7 @@ namespace HueFestivalAPI.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPost("chuongtrinh")]
+        [HttpPost("create-chuongtrinh")]
         public async Task<IActionResult> AddChuongTrinh([FromForm] AddChuongTrinhDTO chuongTrinhDto, List<IFormFile> imageFiles)
         {
             try
@@ -73,11 +69,11 @@ namespace HueFestivalAPI.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{idchuongtrinh}/images/{idimage}")]
-        public async Task<IActionResult> UpdateChuongTrinhImage(int idchuongtrinh, int idimage, IFormFile imageFile)
+        public async Task<IActionResult> UpdateChuongTrinhImage(int idChuongTrinh, int idImage, IFormFile imageFile)
         {
             try
             {
-                var image = await _chuongTrinhService.UpdateImageChuongTrinhAsync(idchuongtrinh, idimage, imageFile);
+                var image = await _chuongTrinhService.UpdateImageChuongTrinhAsync(idChuongTrinh, idImage, imageFile);
                 return Ok(image);
             }
             catch (Exception ex)
@@ -87,21 +83,25 @@ namespace HueFestivalAPI.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpDelete("{id}")]
+        [HttpDelete("delete-chuongtrinh/{id}")]
         public async Task<ActionResult> DeleteChuongTrinh(int id)
         {
-            await _chuongTrinhService.DeleteChuongTrinhAsync(id);
-            return Ok();
+            var result = await _chuongTrinhService.DeleteChuongTrinhAsync(id);
+            if(result == false)
+            {
+                return NotFound();
+            }
+            return Ok("Delete Success!");
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPut("{id}")]
+        [HttpPut("update-chuongtrinh/{id}")]
         public async Task<IActionResult> UpdateChuongTrinh(UpdateChuongTrinhDTO chuongTrinhDto, int id)
         {
             try
             {
-                var chuongtrinh = await _chuongTrinhService.UpdateChuongTrinhAsync(chuongTrinhDto, id);
-                return Ok(chuongtrinh);
+                var chuongTrinh = await _chuongTrinhService.UpdateChuongTrinhAsync(chuongTrinhDto, id);
+                return Ok(chuongTrinh);
             }
             catch (Exception ex)
             {
@@ -111,11 +111,11 @@ namespace HueFestivalAPI.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{idchuongtrinh}/details/{id_details}")]
-        public async Task<IActionResult> UpdateChuongTrinhDetails(UpdateChuongTrinhDetailsDTO detailsDto, int idchuongtrinh, int id_details)
+        public async Task<IActionResult> UpdateChuongTrinhDetails(UpdateChuongTrinhDetailsDTO detailsDto, int idChuongTrinh, int idDetails)
         {
             try
             {
-                var details = await _chuongTrinhService.UpdateChuongTrinhDetailsAsync(detailsDto, idchuongtrinh, id_details);
+                var details = await _chuongTrinhService.UpdateChuongTrinhDetailsAsync(detailsDto, idChuongTrinh, idDetails);
                 return Ok(details);
             }
             catch (Exception ex)
@@ -126,18 +126,26 @@ namespace HueFestivalAPI.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpDelete("{idchuongtrinh}/details/{id_details}")]
-        public async Task<ActionResult> DeleteChuongTrinhDetails(int idchuongtrinh, int id_details)
+        public async Task<ActionResult> DeleteChuongTrinhDetails(int idChuongtrinh, int idDetails)
         {
-            await _chuongTrinhService.DeleteChuongTrinhDetailsAsync(idchuongtrinh, id_details);
-            return Ok();
+            var result = await _chuongTrinhService.DeleteChuongTrinhDetailsAsync(idChuongtrinh, idDetails);
+            if(result == false)
+            {
+                return NotFound();
+            }
+            return Ok("Delete Success!");
         }
 
         [Authorize(Roles = "Admin")]
         [HttpDelete("{idchuongtrinh}/image/{idimage}")]
-        public async Task<ActionResult> DeleteChuongTrinhImage(int idchuongtrinh, int idimage)
+        public async Task<ActionResult> DeleteChuongTrinhImage(int idChuongTrinh, int idImage)
         {
-            await _chuongTrinhService.DeleteChuongTrinhImageAsync(idchuongtrinh, idimage);
-            return Ok();
+            var result = await _chuongTrinhService.DeleteChuongTrinhImageAsync(idChuongTrinh, idImage);
+            if (result == false)
+            {
+                return NotFound();
+            }
+            return Ok("Delete Success!");
         }
     }
 }

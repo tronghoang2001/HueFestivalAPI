@@ -24,7 +24,6 @@ namespace HueFestivalAPI.Models
         public Boolean TinhTrangThanhToan { get; set; }
         public int IdVe { get; set; }
         public Ve Ve { get; set; }
-        public ICollection<Checkin> Checkins { get; set; }
         public ICollection<KichHoatVe> KichHoatVes { get; set; }
     }
 }

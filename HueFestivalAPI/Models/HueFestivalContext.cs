@@ -105,9 +105,9 @@ namespace HueFestivalAPI.Models
                 .WithMany(ct => ct.TinTucs)
                 .HasForeignKey(c => c.IdAccount);
             modelBuilder.Entity<Checkin>()
-                .HasOne(c => c.ThongTinDatVe)
+                .HasOne(c => c.KichHoatVe)
                 .WithMany(ct => ct.Checkins)
-                .HasForeignKey(c => c.IdThongTin);
+                .HasForeignKey(c => c.IdKichHoat);
             modelBuilder.Entity<ThongTinDatVe>()
                 .HasOne(c => c.Ve)
                 .WithMany(ct => ct.ThongTinDatVes)
