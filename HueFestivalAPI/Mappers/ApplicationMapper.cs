@@ -38,24 +38,12 @@ namespace HueFestivalAPI.Helpers
                 .ForMember(dest => dest.details_list, opt => opt.MapFrom(src => src.ChuongTrinhDetails))
                 .ForMember(dest => dest.pathimage_list, opt => opt.MapFrom(src => src.ChuongTrinhImages.Select(i => i.PathImage)));
             CreateMap<AddChuongTrinhDTO, ChuongTrinh>()
-                .AfterMap((source, destination) =>
-                {
-                    using (MD5 md5 = MD5.Create())
-                    {
-                        byte[] hashBytes = md5.ComputeHash(Encoding.UTF8.GetBytes(destination.Name));
-                        StringBuilder sb = new StringBuilder();
-                        for (int i = 0; i < hashBytes.Length; i++)
-                        {
-                            sb.Append(hashBytes[i].ToString("x2"));
-                        }
-                        destination.Md5 = sb.ToString();
-                    }
-                });
+                .ForMember(dest => dest.Md5, opt => opt.MapFrom(src => MD5Encryption.CalculateMD5(src.Name)));
             CreateMap<UpdateChuongTrinhDTO, ChuongTrinh>();
             CreateMap<UpdateChuongTrinhDetailsDTO, ChuongTrinhDetails>();
 
             CreateMap<AddAccountDTO, Account>()
-                .ForMember(dest => dest.Password, opt => opt.MapFrom(src => BCrypt.Net.BCrypt.HashPassword(src.Password)))
+                .ForMember(dest => dest.Password, opt => opt.MapFrom(src => MD5Encryption.CalculateMD5(src.Password)))
                 .ForMember(dest => dest.Role, opt => opt.MapFrom(src => "User"))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => true))
                 .ForMember(dest => dest.IdQuyen, opt => opt.MapFrom(src => 3));

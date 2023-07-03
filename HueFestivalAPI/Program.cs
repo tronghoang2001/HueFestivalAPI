@@ -1,3 +1,4 @@
+using HueFestivalAPI.Helpers;
 using HueFestivalAPI.Models;
 using HueFestivalAPI.Services;
 using HueFestivalAPI.Services.IServices;
@@ -52,6 +53,7 @@ builder.Services.AddDbContext<HueFestivalContext>(options =>
 
 builder.Services.AddAutoMapper(typeof(Program));
 
+builder.Services.AddScoped<GenerateToken>();
 builder.Services.AddScoped<IChuongTrinhService, ChuongTrinhService>();
 builder.Services.AddScoped<IDiaDiemService, DiaDiemService>();
 builder.Services.AddScoped<ITinTucService, TinTucService>();

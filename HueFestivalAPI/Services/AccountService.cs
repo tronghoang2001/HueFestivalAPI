@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using HueFestivalAPI.DTO.Account;
+using HueFestivalAPI.Helpers;
 using HueFestivalAPI.Models;
 using HueFestivalAPI.Services.IServices;
 using MailKit.Net.Smtp;
@@ -15,14 +16,16 @@ namespace HueFestivalAPI.Services
     public class AccountService : IAccountService
     {
         private readonly HueFestivalContext _context;
+        private readonly GenerateToken _generateToken;
         private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
 
-        public AccountService(HueFestivalContext context, IConfiguration configuration, IMapper mapper)
+        public AccountService(HueFestivalContext context, IConfiguration configuration, IMapper mapper, GenerateToken generateToken)
         {
             _context = context;
             _configuration = configuration;
             _mapper = mapper;
+            _generateToken = generateToken;
         }
 
         public async Task<Account> AddAccountAsync(AddAccountDTO accountDto)
@@ -41,39 +44,17 @@ namespace HueFestivalAPI.Services
             var account = Authenticate(loginDto);
             if (account != null)
             {
-                var token = GenerateToken(account);
+                var token = _generateToken.CalculateToken(account);
                 return token;
             }
             return string.Empty;
         }
 
-        // To generate token
-        private string GenerateToken(Account account)
-        {
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-            var claims = new[]
-            {
-                new Claim(ClaimTypes.Name, account.Email),
-                new Claim(ClaimTypes.Role, account.Role)
-            };
-            var token = new JwtSecurityToken(_configuration["Jwt:Issuer"],
-                _configuration["Jwt:Audience"],
-                claims,
-                expires: DateTime.Now.AddMinutes(20),
-                signingCredentials: credentials);
-
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
-
-        }
-
-        //To authenticate user
         private Account Authenticate(LoginDTO loginDto)
         {
             var currentUser = _context.Account.FirstOrDefault(a => a.Email.ToLower() ==
                 loginDto.email.ToLower());
-            if (currentUser != null && BCrypt.Net.BCrypt.Verify(loginDto.password, currentUser.Password))
+            if (currentUser != null && currentUser.Password == MD5Encryption.CalculateMD5(loginDto.password))
             {
                 return currentUser;
             }
@@ -134,7 +115,7 @@ namespace HueFestivalAPI.Services
                 return null;
             }
 
-            if (!BCrypt.Net.BCrypt.Verify(accountDto.OldPassword, account.Password))
+            if (account.Password != MD5Encryption.CalculateMD5(accountDto.OldPassword))
             {
                 throw new Exception("Mật khẩu cũ không hợp lệ!");
             }
@@ -144,7 +125,7 @@ namespace HueFestivalAPI.Services
                 throw new Exception("Xác nhận mật khẩu không trùng khớp!");
             }
 
-            account.Password = BCrypt.Net.BCrypt.HashPassword(accountDto.NewPassword);
+            account.Password = MD5Encryption.CalculateMD5(accountDto.NewPassword);
             _context.Account.Update(account);
             await _context.SaveChangesAsync();
 
@@ -290,7 +271,7 @@ namespace HueFestivalAPI.Services
             {
                 throw new Exception("Xác nhận mật khẩu không trùng khớp!");
             }
-            user.Password = BCrypt.Net.BCrypt.HashPassword(resetPasswordDto.NewPassword);
+            user.Password = MD5Encryption.CalculateMD5(resetPasswordDto.NewPassword);
             user.ResetToken = null;
             await _context.SaveChangesAsync();
 

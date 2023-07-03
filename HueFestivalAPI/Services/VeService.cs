@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using HueFestivalAPI.DTO.Ve;
+using HueFestivalAPI.Helpers;
 using HueFestivalAPI.Models;
 using HueFestivalAPI.Services.IServices;
 using Microsoft.EntityFrameworkCore;
@@ -70,22 +71,6 @@ namespace HueFestivalAPI.Services
             return thongTinDatVe;
         }
 
-        private string CalculateQRCode(int idThongTin, int idKichHoat)
-        {
-            var combinedString = $"{idKichHoat}{idThongTin}";
-
-            using (MD5 md5 = MD5.Create())
-            {
-                byte[] hashBytes = md5.ComputeHash(Encoding.UTF8.GetBytes(combinedString));
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < hashBytes.Length; i++)
-                {
-                    sb.Append(hashBytes[i].ToString("x2"));
-                }
-                return sb.ToString();
-            }
-        }
-
         public async Task<List<string>> ThanhToanAsync(ThongTinThanhToanDTO thongTinThanhToanDTO, int idThongTin)
         {
             var stripeSecretKey = _configuration["StripeSettings:SecretKey"];
@@ -134,7 +119,7 @@ namespace HueFestivalAPI.Services
                         {
                             IdThongTin = thongTinDatVe.IdThongTin,
                             NgayKichHoat = DateTime.Now,
-                            QRCode = CalculateQRCode(thongTinDatVe.IdThongTin, i + 1)
+                            QRCode = MD5Encryption.CalculateQRCode(thongTinDatVe.IdThongTin, i + 1)
                         };
 
                         _context.KichHoatVes.Add(kichHoatVe);
