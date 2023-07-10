@@ -5,11 +5,7 @@ using HueFestivalAPI.Models;
 using HueFestivalAPI.Services.IServices;
 using MailKit.Net.Smtp;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using MimeKit;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 
 namespace HueFestivalAPI.Services
 {
@@ -17,13 +13,11 @@ namespace HueFestivalAPI.Services
     {
         private readonly HueFestivalContext _context;
         private readonly GenerateToken _generateToken;
-        private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
 
-        public AccountService(HueFestivalContext context, IConfiguration configuration, IMapper mapper, GenerateToken generateToken)
+        public AccountService(HueFestivalContext context, IMapper mapper, GenerateToken generateToken)
         {
             _context = context;
-            _configuration = configuration;
             _mapper = mapper;
             _generateToken = generateToken;
         }
@@ -39,15 +33,15 @@ namespace HueFestivalAPI.Services
         }
 
 
-        public async Task<string> LoginAsync(LoginDTO loginDto)
+        public Task<string> LoginAsync(LoginDTO loginDto)
         {
             var account = Authenticate(loginDto);
             if (account != null)
             {
                 var token = _generateToken.CalculateToken(account);
-                return token;
+                return Task.FromResult(token);
             }
-            return string.Empty;
+            return Task.FromResult(string.Empty);
         }
 
         private Account Authenticate(LoginDTO loginDto)
